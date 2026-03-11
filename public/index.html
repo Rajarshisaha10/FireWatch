@@ -747,7 +747,7 @@ function connectWS() {
   ws.onmessage = e => {
     lastRx = Date.now();
     try { processData(JSON.parse(e.data)); }
-    catch(err) { log('Parse error: ' + err.message, 'warn'); }
+    catch(err) { log('Runtime error: ' + err.message, 'warn'); console.error(err); }
   };
 
   ws.onclose = () => {
@@ -846,7 +846,7 @@ function processData(d) {
 
   // Mark unit as online as soon as data arrives
   const unitStatus = document.getElementById('unitStatus');
-  if (unitStatus.textContent === 'OFFLINE') {
+  if (unitStatus?.textContent === 'OFFLINE') {
     unitStatus.className = 'status-block safe';
     unitStatus.textContent = 'NOMINAL';
     document.getElementById('unitDot').className = 'unit-dot safe';
@@ -857,8 +857,8 @@ function processData(d) {
     const pct = Math.min(100, mq7Raw/4095*100);
     const [badge,lvl] = classifyMQ7(mq7Raw);
     setCard('mq7', mq7Raw, pct, badge, lvl);
-    document.getElementById('sub-mq7').textContent =
-      mq7Phase === 'MEASURING_1_4V' ? 'IN MEASUREMENT WINDOW' : 'PURGE CYCLE ACTIVE';
+    const sub7 = document.getElementById('sub-mq7');
+    if (sub7) sub7.textContent = mq7Phase === 'MEASURING_1_4V' ? 'IN MEASUREMENT WINDOW' : 'PURGE CYCLE ACTIVE';
   }
 
   // ── MQ-2 ──
@@ -866,7 +866,8 @@ function processData(d) {
     const pct = Math.min(100, mq2Raw/4095*100);
     const [badge,lvl] = classifyMQ2(mq2Raw);
     setCard('mq2', mq2Raw, pct, badge, lvl);
-    document.getElementById('sub-mq2').textContent = `VOLTAGE: ~${(mq2Raw/4095*3.3).toFixed(2)}V`;
+    const sub2 = document.getElementById('sub-mq2');
+    if (sub2) sub2.textContent = `VOLTAGE: ~${(mq2Raw/4095*3.3).toFixed(2)}V`;
     push(hist.mq2, mq2Raw); push(cbuf.mq2, mq2Raw);
   }
 
@@ -875,10 +876,10 @@ function processData(d) {
     const pct = Math.min(100, Math.max(0, skinTemp/50*100));
     const [badge,lvl] = classifySkinTemp(skinTemp);
     setCard('temp', skinTemp, pct, badge, lvl);
-    document.getElementById('sub-temp').textContent =
-      skinTemp > 38 ? `ELEVATED: ${skinTemp}°C` : 'WITHIN NORMAL RANGE';
-    document.getElementById('mv-skin').textContent = skinTemp + '°C';
-    document.getElementById('mv-skin').style.color = skinTemp > 38 ? 'var(--red)' : 'var(--cyan)';
+    const subT = document.getElementById('sub-temp');
+    if (subT) subT.textContent = skinTemp > 38 ? `ELEVATED: ${skinTemp}°C` : 'WITHIN NORMAL RANGE';
+    const mvSkin = document.getElementById('mv-skin');
+    if (mvSkin) { mvSkin.textContent = skinTemp + '°C'; mvSkin.style.color = skinTemp > 38 ? 'var(--red)' : 'var(--cyan)'; }
     push(hist.temp, skinTemp); push(cbuf.temp, skinTemp);
   }
 
@@ -887,18 +888,24 @@ function processData(d) {
     const pct = Math.min(100, Math.max(0,(pressure-950)/130*100));
     const [badge,lvl] = classifyPressure(pressure);
     setCard('pressure', pressure, pct, badge, lvl);
-    document.getElementById('v-alt').textContent = alt !== null ? alt+'m' : '---';
-    document.getElementById('v-bmptemp').textContent = bmpTemp !== null ? bmpTemp+'°C' : '---';
-    document.getElementById('mv-pressure').textContent = pressure + ' hPa';
-    document.getElementById('mv-alt').textContent = alt !== null ? alt+'m' : '--';
+    const vAlt     = document.getElementById('v-alt');
+    const vBmpTemp = document.getElementById('v-bmptemp');
+    const mvPres   = document.getElementById('mv-pressure');
+    const mvAlt    = document.getElementById('mv-alt');
+    if (vAlt)     vAlt.textContent     = alt !== null ? alt+'m'             : '---';
+    if (vBmpTemp) vBmpTemp.textContent = bmpTemp !== null ? bmpTemp+'°C'    : '---';
+    if (mvPres)   mvPres.textContent   = pressure + ' hPa';
+    if (mvAlt)    mvAlt.textContent    = alt !== null ? alt+'m'             : '--';
     push(hist.pressure, pressure); push(cbuf.pressure, pressure);
   }
 
   // ── MQ7 phase display ──
   if (mq7Phase) {
     const isM = mq7Phase.includes('MEASURING');
-    document.getElementById('mq7PhaseLabel').textContent = isM ? 'MEASURING  1.4V' : 'HEATING  5.0V';
-    document.getElementById('mq7PhaseDot').className = 'phase-dot' + (isM ? ' measuring' : '');
+    const phLabel = document.getElementById('mq7PhaseLabel');
+    const phDot   = document.getElementById('mq7PhaseDot');
+    if (phLabel) phLabel.textContent = isM ? 'MEASURING  1.4V' : 'HEATING  5.0V';
+    if (phDot)   phDot.className     = 'phase-dot' + (isM ? ' measuring' : '');
   }
 
   // ── history labels
@@ -942,17 +949,14 @@ function classifyPressure(v) {
 function makeB(txt, color, bg) { return { txt, color, bg }; }
 
 function setCard(id, value, pct, badge, level) {
-  document.getElementById('v-'+id).textContent = value;
-  document.getElementById('v-'+id).style.color =
-    level==='danger' ? 'var(--red)' : level==='warning' ? 'var(--amber)' : 'var(--text-hi)';
-  const b = document.getElementById('b-'+id);
-  b.textContent = badge.txt;
-  b.style.cssText = `color:${badge.color};background:${badge.bg};border:1px solid ${badge.color}44;display:inline-block;margin-top:8px;padding:2px 8px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.5px;transition:all 0.3s;`;
-  const card = document.getElementById('card-'+id);
-  card.classList.remove('state-danger','state-warning');
-  if (level==='danger')  card.classList.add('state-danger');
-  if (level==='warning') card.classList.add('state-warning');
-  document.getElementById('g-'+id).style.width = pct + '%';
+  const vEl   = document.getElementById('v-'+id);
+  const bEl   = document.getElementById('b-'+id);
+  const card  = document.getElementById('card-'+id);
+  const gEl   = document.getElementById('g-'+id);
+  if (vEl) { vEl.textContent = value; vEl.style.color = level==='danger' ? 'var(--red)' : level==='warning' ? 'var(--amber)' : 'var(--text-hi)'; }
+  if (bEl) { bEl.textContent = badge.txt; bEl.style.cssText = `color:${badge.color};background:${badge.bg};border:1px solid ${badge.color}44;display:inline-block;margin-top:8px;padding:2px 8px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.5px;transition:all 0.3s;`; }
+  if (card) { card.classList.remove('state-danger','state-warning'); if (level==='danger') card.classList.add('state-danger'); if (level==='warning') card.classList.add('state-warning'); }
+  if (gEl)  gEl.style.width = pct + '%';
   updateSpark(id, hist[id] || []);
 }
 
