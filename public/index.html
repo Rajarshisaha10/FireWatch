@@ -844,6 +844,14 @@ function processData(d) {
   // Altitude from pressure
   const alt = pressure ? Math.round(44330*(1-Math.pow(pressure/1013.25,0.1903))) : null;
 
+  // Mark unit as online as soon as data arrives
+  const unitStatus = document.getElementById('unitStatus');
+  if (unitStatus.textContent === 'OFFLINE') {
+    unitStatus.className = 'status-block safe';
+    unitStatus.textContent = 'NOMINAL';
+    document.getElementById('unitDot').className = 'unit-dot safe';
+  }
+
   // ── MQ-7 ──
   if (mq7Raw > 0) {
     const pct = Math.min(100, mq7Raw/4095*100);
@@ -883,7 +891,6 @@ function processData(d) {
     document.getElementById('v-bmptemp').textContent = bmpTemp !== null ? bmpTemp+'°C' : '---';
     document.getElementById('mv-pressure').textContent = pressure + ' hPa';
     document.getElementById('mv-alt').textContent = alt !== null ? alt+'m' : '--';
-    document.getElementById('mv-bmptemp').textContent = bmpTemp !== null ? bmpTemp+'°C' : '--';
     push(hist.pressure, pressure); push(cbuf.pressure, pressure);
   }
 
@@ -894,14 +901,7 @@ function processData(d) {
     document.getElementById('mq7PhaseDot').className = 'phase-dot' + (isM ? ' measuring' : '');
   }
 
-  // ── IR / finger ──
-  if (irValue != null) {
-    const hasContact = irValue > 5000;
-    document.getElementById('mv-ir').textContent = hasContact ? `${irValue} (CONTACT)` : `${irValue} (NO CONTACT)`;
-    document.getElementById('mv-ir').style.color = hasContact ? 'var(--green)' : 'var(--text-dim)';
-  }
-
-  // history labels
+  // ── history labels
   push(cbuf.labels, ts);
 
   updateCharts();
@@ -922,8 +922,7 @@ function classifyMQ7(v) {
 function classifyMQ2(v) {
   if (v > 3500) return [makeB('CRITICAL — HEAVY SMOKE', 'var(--red)',   'var(--red-bg)'),   'danger'];
   if (v > 2500) return [makeB('WARNING — SMOKE',        'var(--amber)', 'var(--amber-bg)'), 'warning'];
-  if (v > 1500) return [makeB('CAUTION — GAS ELEVATED', 'var(--amber)', 'var(--amber-bg)'), 'warning'];
-  if (v > 800)  return [makeB('LOW LEVEL DETECTED',     'var(--amber)', 'var(--amber-bg)'), 'warning'];
+  if (v > 2000) return [makeB('CAUTION — GAS ELEVATED', 'var(--amber)', 'var(--amber-bg)'), 'warning'];
   return [makeB('CLEAR', 'var(--green)', 'var(--green-bg)'), 'safe'];
 }
 
@@ -974,9 +973,9 @@ function computeAlerts(v) {
     chk(v.mq7Raw > 3000, 'CO CRITICAL',  'red',   true);
     chk(v.mq7Raw > 2000 && v.mq7Raw <= 3000, 'CO ELEVATED', 'amber', false);
   }
-  chk(v.mq2Raw > 4000, 'HEAVY SMOKE',         'red',   true);
-  chk(v.mq2Raw > 3000 && v.mq2Raw <= 4000, 'SMOKE DETECTED', 'amber', false);
-  chk(v.mq2Raw > 1500 && v.mq2Raw <= 3000, 'GAS ELEVATED',  'amber', false);
+  chk(v.mq2Raw > 4000, 'HEAVY SMOKE',                   'red',   true);
+  chk(v.mq2Raw > 3000 && v.mq2Raw <= 4000, 'SMOKE DETECTED',  'amber', false);
+  chk(v.mq2Raw > 2000 && v.mq2Raw <= 3000, 'GAS ELEVATED',    'amber', false);
   chk(v.bmpTemp > 80,  'EXTREME AMBIENT HEAT', 'red',   true);
   chk(v.bmpTemp > 50 && v.bmpTemp <= 80, 'HIGH AMBIENT TEMP', 'amber', false);
   chk(v.skinTemp > 40, 'HEAT STRESS',    'red',   true);
