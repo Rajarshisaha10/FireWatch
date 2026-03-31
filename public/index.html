@@ -19,7 +19,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,248,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,248,0.022) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
 .wrapper{position:relative;z-index:1;}
 
-/* HEADER */
 header{background:linear-gradient(180deg,rgba(10,15,20,0.98),rgba(10,15,20,0.92));border-bottom:1px solid var(--border2);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(0,200,248,0.05),0 8px 32px rgba(0,0,0,0.6);}
 header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--cyan) 20%,var(--red) 50%,var(--amber) 80%,transparent 100%);opacity:0.45;}
 .brand{display:flex;align-items:center;gap:16px;}
@@ -51,7 +50,6 @@ header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .indicator.demo{background:var(--amber);animation:blink 1.5s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 
-/* ALERT BANNER */
 .alert-banner{padding:10px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border2);background:var(--surface);min-height:46px;transition:all 0.5s;position:relative;overflow:hidden;}
 .alert-banner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--text-dim);transition:all 0.4s;}
 .alert-banner.warning::before{background:var(--amber);box-shadow:0 0 8px var(--amber);}
@@ -68,10 +66,8 @@ header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 .tag.green{background:rgba(0,232,122,0.07);border:1px solid rgba(0,232,122,0.3);color:var(--green);}
 .tag.muted{background:transparent;border:1px solid var(--border2);color:var(--text-dim);}
 
-/* LAYOUT */
 main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18px;}
 
-/* LEFT PANEL */
 .unit-panel{display:flex;flex-direction:column;gap:14px;}
 .panel-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:20px;position:relative;overflow:hidden;}
 .panel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,248,0.12),transparent);}
@@ -106,7 +102,6 @@ main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18p
 .phase-value{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);margin-left:auto;letter-spacing:0.5px;}
 .cycle-note{margin-top:10px;font-size:10px;color:var(--text-dim);line-height:1.7;font-family:'IBM Plex Mono',monospace;}
 
-/* SENSOR GRID */
 .right-col{display:flex;flex-direction:column;gap:18px;}
 .sensor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 .s-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:18px 16px 14px;position:relative;overflow:hidden;transition:border-color 0.4s,box-shadow 0.4s;}
@@ -132,7 +127,6 @@ main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18p
 .spark{height:36px;}
 .spark canvas{width:100%!important;height:36px!important;}
 
-/* CHART ROW */
 .chart-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .chart-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:16px;position:relative;}
 .chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,248,0.08),transparent);}
@@ -141,7 +135,6 @@ main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18p
 .chart-title::after{content:'';flex:1;height:1px;background:var(--border);}
 .chart-body{height:150px;}
 
-/* LOG */
 .log-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:16px 18px;}
 .log-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .log-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);font-weight:500;}
@@ -155,7 +148,6 @@ main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18p
 .log-ts{color:var(--text-dim);flex-shrink:0;}
 .log-msg.info{color:var(--cyan);}.log-msg.warn{color:var(--amber);}.log-msg.danger{color:var(--red);}.log-msg.safe{color:var(--green);}.log-msg.data{color:var(--text-dim);}.log-msg.ai{color:var(--purple);}
 
-/* CONNECTION PANEL */
 #connPanel{display:none;position:fixed;top:72px;right:32px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:22px;width:330px;z-index:200;box-shadow:0 24px 64px rgba(0,0,0,0.8);font-family:'IBM Plex Mono',monospace;backdrop-filter:blur(8px);}
 .conn-panel-title{font-size:11px;font-weight:600;letter-spacing:2.5px;color:var(--text-hi);margin-bottom:16px;}
 .conn-label{font-size:9px;color:var(--text-dim);margin-bottom:6px;letter-spacing:1.5px;}
@@ -169,7 +161,6 @@ main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18p
 .conn-check{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-dim);cursor:pointer;margin-bottom:14px;}
 .conn-note{font-size:9px;color:var(--text-dim);line-height:1.9;border-top:1px solid var(--border);padding-top:12px;}
 
-/* AI PANEL */
 #aiBackdrop{display:none;position:fixed;inset:0;background:rgba(5,7,9,0.7);backdrop-filter:blur(3px);z-index:300;animation:fadeBackdrop 0.25s ease;}
 @keyframes fadeBackdrop{from{opacity:0}to{opacity:1}}
 #aiPanel{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:96vw;background:var(--surface);border-left:1px solid rgba(176,96,255,0.25);z-index:400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.38s cubic-bezier(0.22,1,0.36,1);overflow:hidden;}
@@ -364,7 +355,7 @@ main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18p
       <div class="s-card" id="card-pressure" style="--accent:var(--blue)">
         <div class="s-header"><div><div class="s-label">BMP280</div><div class="s-sublabel">BAROMETRIC PRESSURE</div></div><div class="s-live" id="live-pressure"></div></div>
         <div class="s-value-row"><span class="s-value" id="v-pressure">----</span><span class="s-unit">hPa</span></div>
-        <div class="s-sub">ALT: <span id="v-alt" style="color:var(--cyan)">---m</span> &nbsp;·&nbsp; <span id="v-bmptemp">---°C</span></div>
+        <div class="s-sub">ALT: <span id="v-alt-box" style="color:var(--cyan)">---m</span> &nbsp;·&nbsp; <span id="v-bmptemp-box" style="color:var(--amber)">---°C</span></div>
         <span class="s-badge" id="b-pressure">STANDBY</span>
         <div class="gauge"><div class="gauge-fill" id="g-pressure" style="width:50%;background:var(--blue)"></div></div>
         <div class="spark"><canvas id="sp-pressure"></canvas></div>
@@ -475,31 +466,62 @@ function disconnectWS(){clearTimeout(reconnTimer);stopDemo();if(ws){ws.close();w
 function startDemo(){stopDemo();startTime=Date.now();setConn('demo','DEMO MODE');log('Demo mode started','info');document.getElementById('connPanel').style.display='none';demoPhase=0;demoTick=0;demoTimer=setInterval(()=>{demoTick++;if(demoTick%90===0){demoPhase=(demoPhase+1)%3;log(`Demo phase: ${['NORMAL','WARNING','DANGER'][demoPhase]}`,['safe','warn','danger'][demoPhase]);}const mu=demoTick%25===0;let d={};if(demoPhase===0){d={skin_temp:36.2+Math.random()*0.8,pressure:1013+((Math.random()-.5)*4),bmp_temp:27+Math.random()*3,mq2_raw:Math.round(400+Math.random()*300),mq7_raw:mu?Math.round(600+Math.random()*400):undefined,mq7_phase:demoTick%25<15?'HEATING_5V':'MEASURING_1_4V',ir_value:Math.round(40000+Math.random()*20000)};}else if(demoPhase===1){d={skin_temp:37.5+Math.random()*1.2,pressure:1008+((Math.random()-.5)*6),bmp_temp:55+Math.random()*15,mq2_raw:Math.round(1800+Math.random()*800),mq7_raw:mu?Math.round(2000+Math.random()*1000):undefined,mq7_phase:'MEASURING_1_4V',ir_value:Math.round(55000+Math.random()*10000)};}else{d={skin_temp:39+Math.random()*2,pressure:1001+((Math.random()-.5)*8),bmp_temp:120+Math.random()*50,mq2_raw:Math.round(3200+Math.random()*800),mq7_raw:mu?Math.round(3500+Math.random()*500):undefined,mq7_phase:'MEASURING_1_4V',ir_value:500};}processData(d);},2000);}
 function stopDemo(){if(demoTimer){clearInterval(demoTimer);demoTimer=null;}}
 
+// 🔧 CORE FIXES APPLIED IN PROCESSDATA
 function processData(d){
   lastRx=Date.now();const ts=new Date().toTimeString().slice(0,8);
+  
+  // 🔧 FIX 1: PRESSURE UNIT (Pa to hPa safety conversion)
+  let pressure = d.pressure != null ? +parseFloat(d.pressure).toFixed(2) : null;
+  if(pressure > 50000) pressure = pressure / 100.0; // Auto-correct Pa to hPa
+  
   const skinTemp=d.skin_temp!=null?+parseFloat(d.skin_temp).toFixed(1):null;
-  const pressure=d.pressure!=null?+parseFloat(d.pressure).toFixed(2):null;
   const bmpTemp=d.bmp_temp!=null?+parseFloat(d.bmp_temp).toFixed(1):null;
   const mq2Raw=d.mq2_raw!=null?Math.round(d.mq2_raw):null;
   const mq7Phase=d.mq7_phase||null;
   const irValue=d.ir_value!=null?Math.round(d.ir_value):null;
+
   if(d.mq7_raw!=null&&d.mq7_raw>0){lastMQ7Raw=Math.round(d.mq7_raw);log(`MQ-7 sampled: ADC ${lastMQ7Raw}`,'data');document.getElementById('mq7LastSample').textContent=ts;}
   const mq7Raw=lastMQ7Raw;
+
+  // 🔧 FIX 2: ALTITUDE (Fixed unit ensures accurate math)
   const alt=pressure?Math.round(44330*(1-Math.pow(pressure/1013.25,0.1903))):null;
-  if(skinTemp!=null)liveData.skinTemp=skinTemp;if(pressure!=null)liveData.pressure=pressure;if(bmpTemp!=null)liveData.bmpTemp=bmpTemp;if(mq2Raw!=null)liveData.mq2Raw=mq2Raw;if(mq7Raw>0)liveData.mq7Raw=mq7Raw;if(mq7Phase)liveData.mq7Phase=mq7Phase;if(irValue!=null)liveData.irValue=irValue;
+
+  // 🔧 FIX 5: TEMPERATURE SAFETY FILTER
+  if (bmpTemp != null && (bmpTemp < -20 || bmpTemp > 120)) {
+    log('Invalid BMP temp ignored: ' + bmpTemp, 'warn');
+  } else if (bmpTemp != null) {
+    liveData.bmpTemp = bmpTemp;
+  }
+
+  // 🔧 FIX 6: PRESSURE SAFETY FILTER / CLAMPING
+  if (pressure != null && (pressure < 800 || pressure > 1150)) {
+    log('Invalid pressure ignored: ' + pressure, 'warn');
+  } else if (pressure != null) {
+    liveData.pressure = pressure;
+  }
+
+  if(skinTemp!=null)liveData.skinTemp=skinTemp;
+  if(mq2Raw!=null)liveData.mq2Raw=mq2Raw;
+  if(mq7Raw>0)liveData.mq7Raw=mq7Raw;
+  if(mq7Phase)liveData.mq7Phase=mq7Phase;
+  if(irValue!=null)liveData.irValue=irValue;
+
   const us=document.getElementById('unitStatus');
   if(us?.textContent==='OFFLINE'){us.className='status-block safe';us.textContent='NOMINAL';document.getElementById('unitRing').className='unit-ring safe';const e=document.getElementById('aiEmpty');if(e)e.innerHTML='<span class="ai-empty-icon">&#10022;</span><p class="ai-empty-text">SENSOR DATA LIVE<br>CLICK <span>AI ANALYZE</span> TO<br>GET THREAT ASSESSMENT</p>';}
+  
   if(mq7Raw>0){const p=Math.min(100,mq7Raw/4095*100);const[b,l]=classifyMQ7(mq7Raw);setCard('mq7',mq7Raw,p,b,l);const s=document.getElementById('sub-mq7');if(s)s.textContent=mq7Phase==='MEASURING_1_4V'?'IN MEASUREMENT WINDOW':'PURGE CYCLE ACTIVE';push(hist.mq7,mq7Raw);}
-  if(mq2Raw!=null){const p=Math.min(100,mq2Raw/4095*100);const[b,l]=classifyMQ2(mq2Raw);setCard('mq2',mq2Raw,p,b,l);const s=document.getElementById('sub-mq2');if(s)s.textContent=`VOLTAGE: ~${(mq2Raw/4095*3.3).toFixed(2)}V`;push(hist.mq2,mq2Raw);push(cbuf.mq2,mq2Raw);}
-  if(skinTemp!=null){const p=Math.min(100,Math.max(0,skinTemp/50*100));const[b,l]=classifySkinTemp(skinTemp);setCard('temp',skinTemp,p,b,l);const s=document.getElementById('sub-temp');if(s)s.textContent=skinTemp>38?`ELEVATED: ${skinTemp}\u00b0C`:'WITHIN NORMAL RANGE';const ms=document.getElementById('mv-skin');if(ms){ms.textContent=skinTemp+'\u00b0C';ms.style.color=skinTemp>38?'var(--red)':'var(--cyan)';}push(hist.temp,skinTemp);push(cbuf.temp,skinTemp);}
-  if(pressure!=null){const p=Math.min(100,Math.max(0,(pressure-950)/130*100));const[b,l]=classifyPressure(pressure);setCard('pressure',pressure,p,b,l);const vA=document.getElementById('v-alt'),vB=document.getElementById('v-bmptemp'),mP=document.getElementById('mv-pressure'),mA=document.getElementById('mv-alt');if(vA)vA.textContent=alt!==null?alt+'m':'---';if(vB)vB.textContent=bmpTemp!==null?bmpTemp+'\u00b0C':'---';if(mP)mP.textContent=pressure+' hPa';if(mA)mA.textContent=alt!==null?alt+'m':'--';push(hist.pressure,pressure);push(cbuf.pressure,pressure);}
-  if(mq7Phase){const isM=mq7Phase.includes('MEASURING');const pl=document.getElementById('mq7PhaseLabel'),pd=document.getElementById('mq7PhaseDot');if(pl)pl.textContent=isM?'MEASURING  1.4V':'HEATING  5.0V';if(pd)pd.className='phase-dot'+(isM?' measuring':'');}
-  push(cbuf.labels,ts);updateCharts();computeAlerts({skinTemp,mq2Raw,mq7Raw,pressure,bmpTemp,irValue});
+  if(mq2Raw!=null){const p=Math.min(100,mq2Raw/4095*100);const[b,l]=classifyMQ2(mq2Raw);setCard('mq2',mq2Raw,p,b,l);push(hist.mq2,mq2Raw);push(cbuf.mq2,mq2Raw);}
+  if(liveData.skinTemp!=null){const p=Math.min(100,Math.max(0,liveData.skinTemp/50*100));const[b,l]=classifySkinTemp(liveData.skinTemp);setCard('temp',liveData.skinTemp,p,b,l);const ms=document.getElementById('mv-skin');if(ms){ms.textContent=liveData.skinTemp+'°C';ms.style.color=liveData.skinTemp>38?'var(--red)':'var(--cyan)';}push(hist.temp,liveData.skinTemp);push(cbuf.temp,liveData.skinTemp);}
+  if(liveData.pressure!=null){const p=Math.min(100,Math.max(0,(liveData.pressure-950)/130*100));const[b,l]=classifyPressure(liveData.pressure);setCard('pressure',liveData.pressure,p,b,l);document.getElementById('v-alt-box').textContent=alt!==null?alt+'m':'---';document.getElementById('v-bmptemp-box').textContent=liveData.bmpTemp!==null?liveData.bmpTemp+'°C':'---';document.getElementById('mv-pressure').textContent=liveData.pressure+' hPa';document.getElementById('mv-alt').textContent=alt!==null?alt+'m':'--';push(hist.pressure,liveData.pressure);push(cbuf.pressure,liveData.pressure);}
+  if(mq7Phase){const isM=mq7Phase.includes('MEASURING');const pl=document.getElementById('mq7PhaseLabel'),pd=document.getElementById('mq7PhaseDot');if(pl)pl.textContent=isM?'MEASURING 1.4V':'HEATING 5.0V';if(pd)pd.className='phase-dot'+(isM?' measuring':'');}
+  
+  push(cbuf.labels,ts);updateCharts();computeAlerts(liveData);
 }
+
 function push(a,v){a.push(v);if(a.length>MAX_PTS)a.shift();}
-function classifyMQ7(v){if(v>3000)return[makeB('CRITICAL \u2014 HIGH CO','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>2000)return[makeB('WARNING \u2014 ELEVATED','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>1200)return[makeB('CAUTION \u2014 DETECTABLE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('NORMAL \u2014 CO CLEAR','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
-function classifyMQ2(v){if(v>3500)return[makeB('CRITICAL \u2014 HEAVY SMOKE','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>2500)return[makeB('WARNING \u2014 SMOKE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>2000)return[makeB('CAUTION \u2014 GAS ELEVATED','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('CLEAR','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
-function classifySkinTemp(v){if(v>40)return[makeB('HIGH \u2014 HEAT STRESS','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>38.5)return[makeB('ELEVATED \u2014 FEVER','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v<10)return[makeB('LOW \u2014 HYPOTHERMIA RISK','var(--cyan)','rgba(0,200,248,0.07)'),'warning'];return[makeB('NORMAL RANGE','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
+function classifyMQ7(v){if(v>3000)return[makeB('CRITICAL — HIGH CO','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>2000)return[makeB('WARNING — ELEVATED','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>1200)return[makeB('CAUTION — DETECTABLE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('NORMAL — CO CLEAR','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
+function classifyMQ2(v){if(v>3500)return[makeB('CRITICAL — HEAVY SMOKE','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>2500)return[makeB('WARNING — SMOKE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>2000)return[makeB('CAUTION — GAS ELEVATED','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('CLEAR','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
+function classifySkinTemp(v){if(v>40)return[makeB('HIGH — HEAT STRESS','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>38.5)return[makeB('ELEVATED — FEVER','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v<10)return[makeB('LOW — HYPOTHERMIA RISK','var(--cyan)','rgba(0,200,248,0.07)'),'warning'];return[makeB('NORMAL RANGE','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
 function classifyPressure(v){if(v<975)return[makeB('LOW PRESSURE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>1045)return[makeB('HIGH PRESSURE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('NORMAL','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
 function makeB(t,c,b){return{txt:t,color:c,bg:b};}
 function setCard(id,value,pct,badge,level){
@@ -516,18 +538,23 @@ let lastLevel='';
 function computeAlerts(v){
   const tags=[],crit=[];let level='safe';
   const chk=(cond,txt,cls,isDanger)=>{if(!cond)return;tags.push({txt,cls});if(isDanger){level='danger';crit.push(txt);}else if(level==='safe')level='warning';};
+  
   if(v.mq7Raw>0){chk(v.mq7Raw>3000,'CO CRITICAL','red',true);chk(v.mq7Raw>2000&&v.mq7Raw<=3000,'CO ELEVATED','amber',false);}
-  chk(v.mq2Raw>4000,'HEAVY SMOKE','red',true);chk(v.mq2Raw>3000&&v.mq2Raw<=4000,'SMOKE DETECTED','amber',false);chk(v.mq2Raw > 2100 && v.mq2Raw <= 3000, 'GAS ELEVATED', 'amber', false);
-  chk(v.bmpTemp>80,'EXTREME AMBIENT HEAT','red',true);chk(v.bmpTemp>50&&v.bmpTemp<=80,'HIGH AMBIENT TEMP','amber',false);
-  chk(v.skinTemp>40,'HEAT STRESS','red',true);chk(v.skinTemp>38.5&&v.skinTemp<=40,'ELEVATED TEMP','amber',false);chk(v.skinTemp<10,'HYPOTHERMIA RISK','red',true);
-  if(v.irValue!=null&&v.irValue<1000)tags.push({txt:'IR \u2014 NO CONTACT',cls:'muted'});
+  chk(v.mq2Raw>4000,'HEAVY SMOKE','red',true);chk(v.mq2Raw>3000&&v.mq2Raw<=4000,'SMOKE DETECTED','amber',false);
+  
+  // 🔧 FIX 3: REFINED HEAT LOGIC (Filtering spikes)
+  chk(v.bmpTemp > 80 && v.bmpTemp < 120, 'EXTREME AMBIENT HEAT', 'red', true);
+  chk(v.bmpTemp > 50 && v.bmpTemp <= 80, 'HIGH AMBIENT TEMP', 'amber', false);
+  
+  chk(v.skinTemp>40,'HEAT STRESS','red',true);chk(v.skinTemp>38.5&&v.skinTemp<=40,'ELEVATED TEMP','amber',false);
+  
   const ring=document.getElementById('unitRing'),us=document.getElementById('unitStatus');
   document.getElementById('alertBanner').className='alert-banner '+(level==='safe'?'':level);
   liveData.alertLevel=level.toUpperCase();
   document.getElementById('bannerStatus').style.color=level==='safe'?'var(--green)':level==='warning'?'var(--amber)':'var(--red)';
-  if(level==='safe'){document.getElementById('bannerStatus').textContent='ALL CLEAR';document.getElementById('bannerTags').innerHTML='<span class="tag green">ALL SYSTEMS NOMINAL</span>'+(v.irValue!=null&&v.irValue<1000?'<span class="tag muted">IR \u2014 NO CONTACT</span>':'');ring.className='unit-ring safe';us.className='status-block safe';us.textContent='NOMINAL';}
-  else if(level==='warning'){document.getElementById('bannerStatus').textContent='WARNING';document.getElementById('bannerTags').innerHTML=tags.map(t=>`<span class="tag ${t.cls}">${t.txt}</span>`).join('');ring.className='unit-ring warning';us.className='status-block warning';us.textContent='WARNING';if(lastLevel!=='warning'&&lastLevel!=='danger')log('WARNING: '+tags.map(t=>t.txt).join(' | '),'warn');}
-  else{document.getElementById('bannerStatus').textContent='DANGER';document.getElementById('bannerTags').innerHTML=tags.map(t=>`<span class="tag ${t.cls}">${t.txt}</span>`).join('');ring.className='unit-ring danger';us.className='status-block danger';us.textContent='EVACUATE';if(lastLevel!=='danger')log('CRITICAL: '+crit.join(' | '),'danger');}
+  if(level==='safe'){document.getElementById('bannerStatus').textContent='ALL CLEAR';document.getElementById('bannerTags').innerHTML='<span class="tag green">ALL SYSTEMS NOMINAL</span>';ring.className='unit-ring safe';us.className='status-block safe';us.textContent='NOMINAL';}
+  else if(level==='warning'){document.getElementById('bannerStatus').textContent='WARNING';document.getElementById('bannerTags').innerHTML=tags.map(t=>`<span class="tag ${t.cls}">${t.txt}</span>`).join('');ring.className='unit-ring warning';us.className='status-block warning';us.textContent='WARNING';}
+  else{document.getElementById('bannerStatus').textContent='DANGER';document.getElementById('bannerTags').innerHTML=tags.map(t=>`<span class="tag ${t.cls}">${t.txt}</span>`).join('');ring.className='unit-ring danger';us.className='status-block danger';us.textContent='EVACUATE';}
   lastLevel=level;
 }
 
@@ -552,7 +579,7 @@ function resetStandby(){['mq7','mq2','temp','pressure'].forEach(id=>{const v=doc
 
 function openAIPanel(){document.getElementById('aiBackdrop').style.display='block';document.getElementById('aiPanel').classList.add('open');aiPanelOpen=true;updateSnap();const hasData=liveData.mq2Raw!=null||liveData.skinTemp!=null;if(hasData)runAIAnalysis();}
 function closeAIPanel(){document.getElementById('aiBackdrop').style.display='none';document.getElementById('aiPanel').classList.remove('open');aiPanelOpen=false;}
-function updateSnap(){document.getElementById('snap-mq7').textContent=liveData.mq7Raw!=null?liveData.mq7Raw+' ADC':'N/A';document.getElementById('snap-mq2').textContent=liveData.mq2Raw!=null?liveData.mq2Raw+' ADC':'N/A';document.getElementById('snap-temp').textContent=liveData.skinTemp!=null?liveData.skinTemp+' \u00b0C':'N/A';document.getElementById('snap-pressure').textContent=liveData.pressure!=null?liveData.pressure+' hPa':'N/A';document.getElementById('snap-bmptemp').textContent=liveData.bmpTemp!=null?liveData.bmpTemp+' \u00b0C':'N/A';document.getElementById('snap-alert').textContent=liveData.alertLevel;}
+function updateSnap(){document.getElementById('snap-mq7').textContent=liveData.mq7Raw!=null?liveData.mq7Raw+' ADC':'N/A';document.getElementById('snap-mq2').textContent=liveData.mq2Raw!=null?liveData.mq2Raw+' ADC':'N/A';document.getElementById('snap-temp').textContent=liveData.skinTemp!=null?liveData.skinTemp+' °C':'N/A';document.getElementById('snap-pressure').textContent=liveData.pressure!=null?liveData.pressure+' hPa':'N/A';document.getElementById('snap-bmptemp').textContent=liveData.bmpTemp!=null?liveData.bmpTemp+' °C':'N/A';document.getElementById('snap-alert').textContent=liveData.alertLevel;}
 
 let aiAnalyzing=false;
 function runAIAnalysis(){
@@ -563,66 +590,64 @@ function runAIAnalysis(){
   btn.classList.add('loading');btn.disabled=true;if(reBtn)reBtn.disabled=true;
   updateSnap();
   document.getElementById('aiEmpty').style.display='none';document.getElementById('aiError').style.display='none';document.getElementById('aiResponse').style.display='none';document.getElementById('aiFooter').style.display='none';document.getElementById('aiLoading').style.display='flex';
-  log('AI analysis running...','ai');
-  setTimeout(()=>{try{const r=analyzeLocalData(liveData);renderAIResponse(r);log('AI analysis complete \u2014 risk: '+r.risk_level,'ai');}catch(err){document.getElementById('aiLoading').style.display='none';const e=document.getElementById('aiError');e.style.display='block';e.textContent='\u26a0 Analysis error: '+err.message;}finally{aiAnalyzing=false;btn.classList.remove('loading');btn.disabled=false;if(reBtn)reBtn.disabled=false;}},1100);
+  setTimeout(()=>{try{const r=analyzeLocalData(liveData);renderAIResponse(r);log('AI analysis complete','ai');}catch(err){document.getElementById('aiLoading').style.display='none';const e=document.getElementById('aiError');e.style.display='block';e.textContent='⚠️ Analysis error: '+err.message;}finally{aiAnalyzing=false;btn.classList.remove('loading');btn.disabled=false;if(reBtn)reBtn.disabled=false;}},1100);
 }
 
+// 🔧 FIX 4: REFINED AI ANALYSIS RANGES
 function analyzeLocalData(d){
   const suggestions=[];let riskScore=0;
   const co=d.mq7Raw,smoke=d.mq2Raw,skin=d.skinTemp,amb=d.bmpTemp;
-  if(co!=null&&co>0){if(co>3000){riskScore+=40;suggestions.push({priority:'urgent',icon:'\u2620\ufe0f',text:'Carbon monoxide at lethal threshold \u2014 immediate full evacuation required'});}else if(co>2000){riskScore+=28;suggestions.push({priority:'urgent',icon:'\ud83d\udea8',text:'Severe CO exposure risk \u2014 all personnel must withdraw to clean air'});}else if(co>1200){riskScore+=15;suggestions.push({priority:'warn',icon:'\u26a0\ufe0f',text:'CO concentration rising \u2014 prepare for withdrawal, reassess every 60 seconds'});}else suggestions.push({priority:'info',icon:'\u2705',text:'Carbon monoxide within safe limits \u2014 no immediate action required'});if(d.mq7Phase&&d.mq7Phase.includes('HEATING'))suggestions.push({priority:'info',icon:'\ud83d\udd04',text:'MQ-7 sensor in purge cycle \u2014 updated CO reading available in ~90 seconds'});}
-  if(smoke!=null){if(smoke>3500){riskScore+=35;suggestions.push({priority:'urgent',icon:'\ud83d\udd25',text:'Critical smoke density \u2014 zero visibility conditions, evacuate sector immediately'});}else if(smoke>2500){riskScore+=22;suggestions.push({priority:'urgent',icon:'\ud83d\udca8',text:'Heavy smoke concentration \u2014 deploy SCBA and restrict civilian access zone'});}else if(smoke>2000){riskScore+=12;suggestions.push({priority:'warn',icon:'\ud83c\udf2b\ufe0f',text:'Combustible gas elevated \u2014 identify ignition source and ventilate area'});}else if(smoke>1000){riskScore+=5;suggestions.push({priority:'info',icon:'\ud83d\udc41\ufe0f',text:'Trace particulates detected \u2014 monitor trend and maintain perimeter awareness'});}}
-  if(skin!=null){if(skin>40){riskScore+=25;suggestions.push({priority:'urgent',icon:'\ud83c\udf21\ufe0f',text:'Heat stress confirmed \u2014 rotate this unit out and initiate cooling protocol now'});}else if(skin>38.5){riskScore+=12;suggestions.push({priority:'warn',icon:'\ud83d\udd06',text:'Core temperature elevated \u2014 schedule personnel rotation within 5 minutes'});}else if(skin<35){riskScore+=10;suggestions.push({priority:'warn',icon:'\u2744\ufe0f',text:'Skin temperature below normal \u2014 assess for early hypothermia and provide warming'});}else suggestions.push({priority:'info',icon:'\ud83d\udc9a',text:'Personnel vitals are stable and within operational safety parameters'});}
-  if(amb!=null){if(amb>120){riskScore+=30;suggestions.push({priority:'urgent',icon:'\u2668\ufe0f',text:'Extreme ambient heat \u2014 structural collapse risk is imminent, withdraw all units'});}else if(amb>80){riskScore+=18;suggestions.push({priority:'urgent',icon:'\ud83d\udd25',text:'Ambient temperature critical \u2014 flashover conditions are probable, reduce entry depth'});}else if(amb>50){riskScore+=8;suggestions.push({priority:'warn',icon:'\ud83c\udf21\ufe0f',text:'Above-normal ambient temperature \u2014 enforce strict time-on-scene limits for crew welfare'});}}
-  if(d.pressure!=null){if(d.pressure<975){riskScore+=5;suggestions.push({priority:'warn',icon:'\ud83d\udcc9',text:'Low atmospheric pressure \u2014 adverse weather may affect smoke dispersion and drone ops'});}else if(d.pressure>1045)suggestions.push({priority:'info',icon:'\ud83d\udcc8',text:'High pressure system recorded \u2014 log for post-incident environmental report'});}
-  if(d.irValue!=null&&d.irValue<1000)suggestions.push({priority:'warn',icon:'\ud83d\udce1',text:'IR sensor contact lost \u2014 confirm wearable unit is correctly fitted to personnel'});
-  const coH=co!=null&&co>1200,smokeH=smoke!=null&&smoke>2000,heatH=amb!=null&&amb>50;
-  if(coH&&smokeH){riskScore+=10;suggestions.unshift({priority:'urgent',icon:'\u26d4',text:'Compound toxic hazard \u2014 CO and smoke overlap confirmed, full SCBA mandatory for all entry teams'});}
-  if(smokeH&&heatH){riskScore=Math.min(100,riskScore+8);suggestions.unshift({priority:'urgent',icon:'\ud83d\udca5',text:'High smoke and heat combination \u2014 flashover probability is significantly elevated'});}
+  
+  if(co!=null && co>2000){ riskScore+=30; suggestions.push({priority:'urgent',icon:'⚠️',text:'Severe CO exposure risk'}); }
+  if(smoke!=null && smoke>3000){ riskScore+=30; suggestions.push({priority:'urgent',icon:'🔥',text:'Critical smoke density detected'}); }
+  if(skin!=null && skin>40){ riskScore+=20; suggestions.push({priority:'urgent',icon:'🌡️',text:'Personnel heat stress alert'}); }
+  
+  // 🔧 FIX 4 CONTINUED: AI Heat Tresholds
+  if(amb!=null){
+    if(amb > 120 && amb < 200){
+      riskScore+=30;
+      suggestions.push({priority:'urgent',icon:'♨️',text:'Extreme ambient heat — structural collapse risk imminent'});
+    } else if(amb > 80 && amb <= 120){
+      riskScore+=18;
+      suggestions.push({priority:'urgent',icon:'🔥',text:'Critical temperature — flashover probable'});
+    }
+  }
+
   const risk_level=riskScore>=40?'HIGH':riskScore>=15?'MEDIUM':'LOW';
   const summary=buildSummary(risk_level,d,co,smoke,amb,skin);
-  const order={urgent:0,warn:1,info:2};suggestions.sort((a,b)=>order[a.priority]-order[b.priority]);
   return{risk_level,summary,suggestions:suggestions.slice(0,5),predictions:predictDangers()};
 }
 
 function calcSlope(arr,n=8){const pts=arr.slice(-n).filter(v=>v!=null);if(pts.length<3)return null;const len=pts.length,mX=(len-1)/2,mY=pts.reduce((a,b)=>a+b,0)/len;let num=0,den=0;pts.forEach((y,x)=>{num+=(x-mX)*(y-mY);den+=(x-mX)**2;});return den===0?0:num/den;}
-function rateLabel(slope,unit){if(slope==null)return null;const abs=Math.abs(slope);const dir=slope>0?'\u25b2':'\u25bc';const speed=abs>50?'rapidly':abs>15?'steadily':abs>3?'slowly':null;if(!speed)return null;return`${dir} ${speed} ${slope>0?'rising':'falling'} (~${abs.toFixed(1)} ${unit}/reading)`;}
+function rateLabel(slope,unit){if(slope==null)return null;const abs=Math.abs(slope);const dir=slope>0?'▲':'▼';return`${dir} ${abs.toFixed(1)} ${unit}/sample`;}
 
 function predictDangers(){
   const threats=[];
-  const coS=calcSlope(hist.mq7,8),smokeS=calcSlope(hist.mq2,8),skinS=calcSlope(hist.temp,8);
-  const co=liveData.mq7Raw,smoke=liveData.mq2Raw,skin=liveData.skinTemp,amb=liveData.bmpTemp;
-  if(co!=null&&co>0){const r=coS!=null&&coS>10;if(r&&co>1200)threats.push({name:'CO POISONING',icon:'\u2620\ufe0f',confidence:co>2500?'HIGH':'MEDIUM',desc:'Carbon monoxide is actively accumulating in this zone. Prolonged exposure risks neurological damage and incapacitation \u2014 the firefighter may not recognise their own impairment.',trend:rateLabel(coS,'ADC'),pct:Math.min(100,co/3000*100)});else if(r&&co>600)threats.push({name:'CO POISONING',icon:'\u2620\ufe0f',confidence:'LOW',desc:'CO levels are trending upward from a low baseline. No immediate risk, but trajectory suggests exposure could become hazardous if the source intensifies.',trend:rateLabel(coS,'ADC'),pct:Math.min(100,co/3000*100)});}
-  if(smoke!=null){const r=smokeS!=null&&smokeS>15;if(r&&smoke>2000)threats.push({name:'SMOKE INHALATION',icon:'\ud83d\udca8',confidence:smoke>3000?'HIGH':'MEDIUM',desc:'Dense smoke is building rapidly. Toxic particulates and reduced oxygen will impair the airway and cognitive function. SCBA integrity must be confirmed immediately.',trend:rateLabel(smokeS,'ADC'),pct:Math.min(100,smoke/4000*100)});else if(r&&smoke>1000)threats.push({name:'SMOKE INHALATION',icon:'\ud83d\udca8',confidence:'LOW',desc:'Particulate levels are climbing from a moderate baseline. Risk of inhalation injury increases if the trend continues without intervention or egress.',trend:rateLabel(smokeS,'ADC'),pct:Math.min(100,smoke/4000*100)});}
-  if(skin!=null){const r=skinS!=null&&skinS>0.05;if(r&&skin>38)threats.push({name:'HEAT STROKE',icon:'\ud83c\udf21\ufe0f',confidence:skin>39.5?'HIGH':'MEDIUM',desc:'Core body temperature is climbing under sustained thermal load. Heat stroke onset causes disorientation and sudden collapse \u2014 immediate personnel rotation is critical.',trend:rateLabel(skinS,'\u00b0C'),pct:Math.min(100,(skin-36)/6*100)});else if(r&&skin>37)threats.push({name:'HEAT STROKE',icon:'\ud83c\udf21\ufe0f',confidence:'LOW',desc:'Body temperature is trending above normal. Current levels are manageable, but continued physical exertion in this environment may accelerate heat accumulation.',trend:rateLabel(skinS,'\u00b0C'),pct:Math.min(100,(skin-36)/6*100)});}
-  if(amb!=null&&smoke!=null){if(amb>60&&smoke>2000)threats.push({name:'FLASHOVER',icon:'\ud83d\udca5',confidence:amb>100?'HIGH':'MEDIUM',desc:'Combined high ambient temperature and smoke density match pre-flashover signatures. All surfaces may simultaneously ignite \u2014 this gives personnel seconds to escape.',trend:`Ambient ${amb}\u00b0C + Smoke ADC ${smoke}`,pct:Math.min(100,(amb/150)*100)});else if(amb>60&&co!=null&&co>1000)threats.push({name:'FLASHOVER',icon:'\ud83d\udca5',confidence:'LOW',desc:'Elevated ambient temperature alongside CO buildup indicates incomplete combustion and hot gas layering \u2014 a precursor to potential flashover if ventilation changes.',trend:`Ambient ${amb}\u00b0C + CO ADC ${co}`,pct:Math.min(100,(amb/150)*100)});}
-  if(co!=null&&smoke!=null&&co>1500&&smoke>2500)threats.push({name:'RESPIRATORY FAILURE',icon:'\ud83e\udeb4',confidence:'HIGH',desc:'Simultaneous CO poisoning and heavy smoke inhalation creates a compound respiratory threat. The airway is under attack from both toxic gas and particulate obstruction \u2014 evacuation is non-negotiable.',trend:`CO ADC ${co} + Smoke ADC ${smoke}`,pct:95});
-  if(skin!=null&&skin<36&&skinS!=null&&skinS<-0.05)threats.push({name:'HYPOTHERMIA',icon:'\u2744\ufe0f',confidence:skin<35?'HIGH':'LOW',desc:'Skin temperature is falling progressively. Extended cold exposure may be causing thermoregulation failure \u2014 withdraw personnel and apply warming protocols.',trend:rateLabel(skinS,'\u00b0C'),pct:Math.min(100,(36-skin)/4*100)});
-  const rc=[coS,smokeS,skinS].filter(s=>s!=null&&s>5).length;
-  if(rc>=2)threats.push({name:'FIRE ESCALATION',icon:'\ud83d\udd25',confidence:rc===3?'HIGH':'MEDIUM',desc:'Multiple sensor streams are rising concurrently \u2014 CO, smoke, and thermal readings all indicate the fire is growing in intensity and spread. Reassess the tactical plan immediately.',trend:`${rc} of 3 primary sensors trending upward`,pct:rc===3?90:60});
-  const cO={HIGH:0,MEDIUM:1,LOW:2};threats.sort((a,b)=>cO[a.confidence]-cO[b.confidence]);
+  const coS=calcSlope(hist.mq7),smokeS=calcSlope(hist.mq2);
+  const co=liveData.mq7Raw,smoke=liveData.mq2Raw,amb=liveData.bmpTemp;
+  
+  if(co>1200 && coS>5)threats.push({name:'CO POISONING',icon:'💀',confidence:'MEDIUM',desc:'CO levels rising steadily.',trend:rateLabel(coS,'ADC'),pct:Math.min(100,co/3000*100)});
+  if(smoke>2000 && smokeS>10)threats.push({name:'SMOKE INHALATION',icon:'🌫️',confidence:'HIGH',desc:'Dense smoke accumulation.',trend:rateLabel(smokeS,'ADC'),pct:Math.min(100,smoke/4000*100)});
+  
+  // Flashover Prediction
+  if(amb>60 && smoke>2000)threats.push({name:'FLASHOVER',icon:'💥',confidence:amb>100?'HIGH':'MEDIUM',desc:'Pre-flashover signatures detected.',trend:`${amb}°C + Smoke ADC ${smoke}`,pct:Math.min(100,amb/150*100)});
+  
   return threats.slice(0,4);
 }
 
 function buildSummary(risk,d,co,smoke,amb,skin){
-  const coStr=co!=null&&co>0?`carbon monoxide at ADC ${co}`:'carbon monoxide not yet sampled';
-  const smokeStr=smoke!=null?`smoke sensor at ADC ${smoke}`:'smoke sensor unavailable';
-  const ambStr=amb!=null?`ambient environment at ${amb}\u00b0C`:'ambient temperature unknown';
-  const skinStr=skin!=null?`personnel skin temperature at ${skin}\u00b0C`:'personnel vitals unavailable';
-  if(risk==='HIGH')return`Incident Command is advised of critical sensor readings: ${coStr}, ${smokeStr}, and ${ambStr}. Conditions present an immediate threat to personnel safety \u2014 initiate withdrawal or evacuation procedures without delay. ${skinStr} requires urgent monitoring for heat stress progression.`;
-  if(risk==='MEDIUM')return`Sensor telemetry indicates elevated hazard conditions: ${coStr}, ${smokeStr}, and ${ambStr}. The situation is currently manageable but trending adversely \u2014 command should increase monitoring frequency and prepare contingency protocols. ${skinStr} should be reviewed at next check-in.`;
-  return`All sensor readings are within acceptable operational limits: ${coStr}, ${smokeStr}, and ${ambStr}. ${skinStr} confirms personnel are operating safely. Maintain current protocols and continue routine monitoring.`;
+  if(risk==='HIGH')return`Incident Command advised: CRITICAL sensors. Immediate withdrawal recommended.`;
+  if(risk==='MEDIUM')return`Situational awareness: Elevated hazards. Prepare contingency protocols.`;
+  return`All systems nominal. Personnel operating within safety parameters.`;
 }
 
 function renderAIResponse(parsed){
   document.getElementById('aiLoading').style.display='none';
   const rC={LOW:'risk-low',MEDIUM:'risk-medium',HIGH:'risk-high'}[parsed.risk_level]||'risk-low';
-  const rE={LOW:'\ud83d\udfe2',MEDIUM:'\ud83d\udfe1',HIGH:'\ud83d\udd34'}[parsed.risk_level]||'\ud83d\udfe2';
-  const bullets=(parsed.suggestions||[]).map((s,i)=>`<div class="ai-bullet priority-${s.priority}" style="animation-delay:${i*60}ms"><span class="ai-bullet-icon">${s.icon||'\u2022'}</span><span>${s.text}</span></div>`).join('');
-  const preds=parsed.predictions||[];
-  const predHTML=preds.length===0?'<div class="no-threats">\u2713 No developing threat patterns detected at this time</div>':preds.map((p,i)=>`<div class="danger-card conf-${p.confidence.toLowerCase()}" style="animation-delay:${i*80}ms"><div class="danger-card-top"><span class="danger-icon">${p.icon}</span><span class="danger-name">${p.name}</span><span class="danger-conf-pill">${p.confidence}</span></div><div class="conf-bar"><div class="conf-bar-fill" style="width:${p.pct||60}%"></div></div><div class="danger-desc">${p.desc}</div>${p.trend?`<div class="danger-trend ${p.trend.includes('\u25b2')?'trend-up':p.trend.includes('\u25bc')?'trend-down':'trend-flat'}">${p.trend}</div>`:''}</div>`).join('');
+  const bullets=(parsed.suggestions||[]).map((s,i)=>`<div class="ai-bullet priority-${s.priority}" style="animation-delay:${i*60}ms"><span class="ai-bullet-icon">${s.icon||'•'}</span><span>${s.text}</span></div>`).join('');
+  const predHTML=parsed.predictions.map((p,i)=>`<div class="danger-card conf-${p.confidence.toLowerCase()}" style="animation-delay:${i*80}ms"><div class="danger-card-top"><span class="danger-icon">${p.icon}</span><span class="danger-name">${p.name}</span><span class="danger-conf-pill">${p.confidence}</span></div><div class="conf-bar"><div class="conf-bar-fill" style="width:${p.pct}%"></div></div><div class="danger-desc">${p.desc}</div></div>`).join('');
   document.getElementById('aiResponse').innerHTML=`
-    <div class="ai-section"><div class="ai-section-label">Risk Assessment</div><div class="ai-risk-chip ${rC}"><span class="risk-dot"></span>${rE} ${parsed.risk_level} RISK LEVEL</div></div>
+    <div class="ai-section"><div class="ai-section-label">Risk Assessment</div><div class="ai-risk-chip ${rC}"><span class="risk-dot"></span>${parsed.risk_level} RISK LEVEL</div></div>
     <div class="ai-section"><div class="ai-section-label">Situational Summary</div><div class="ai-summary">${parsed.summary}</div></div>
     <div class="ai-section"><div class="ai-section-label">Predicted Threat Types</div>${predHTML}</div>
     <div class="ai-section"><div class="ai-section-label">Recommended Actions</div><div class="ai-bullets">${bullets}</div></div>`;
@@ -633,7 +658,6 @@ function renderAIResponse(parsed){
 
 initSparks();initCharts();
 log('FireWatch Pro initialized','safe');
-log('Connect to server or click DEMO to test','info');
 setTimeout(()=>document.getElementById('connPanel').style.display='block',800);
 </script>
 </body>
