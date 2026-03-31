@@ -517,7 +517,7 @@ function computeAlerts(v){
   const tags=[],crit=[];let level='safe';
   const chk=(cond,txt,cls,isDanger)=>{if(!cond)return;tags.push({txt,cls});if(isDanger){level='danger';crit.push(txt);}else if(level==='safe')level='warning';};
   if(v.mq7Raw>0){chk(v.mq7Raw>3000,'CO CRITICAL','red',true);chk(v.mq7Raw>2000&&v.mq7Raw<=3000,'CO ELEVATED','amber',false);}
-  chk(v.mq2Raw>4000,'HEAVY SMOKE','red',true);chk(v.mq2Raw>3000&&v.mq2Raw<=4000,'SMOKE DETECTED','amber',false);chk(v.mq2Raw>2000&&v.mq2Raw<=3000,'GAS ELEVATED','amber',false);
+  chk(v.mq2Raw>4000,'HEAVY SMOKE','red',true);chk(v.mq2Raw>3000&&v.mq2Raw<=4000,'SMOKE DETECTED','amber',false);chk(v.mq2Raw > 2100 && v.mq2Raw <= 3000, 'GAS ELEVATED', 'amber', false);
   chk(v.bmpTemp>80,'EXTREME AMBIENT HEAT','red',true);chk(v.bmpTemp>50&&v.bmpTemp<=80,'HIGH AMBIENT TEMP','amber',false);
   chk(v.skinTemp>40,'HEAT STRESS','red',true);chk(v.skinTemp>38.5&&v.skinTemp<=40,'ELEVATED TEMP','amber',false);chk(v.skinTemp<10,'HYPOTHERMIA RISK','red',true);
   if(v.irValue!=null&&v.irValue<1000)tags.push({txt:'IR \u2014 NO CONTACT',cls:'muted'});
