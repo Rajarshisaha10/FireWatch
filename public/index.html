@@ -3,112 +3,638 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FireWatch Pro</title>
-
+<title>FireWatch Pro — Incident Command Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-body {
-  background:#0a0f14;
-  color:#cce4f4;
-  font-family: monospace;
-  text-align:center;
-  padding:40px;
+:root {
+  --bg:#050709; --surface:#0a0f14; --surface2:#0f1820; --surface3:#131f2a;
+  --border:#162030; --border2:#1e3044;
+  --text:#8aabbc; --text-dim:#3a5568; --text-hi:#cce4f4;
+  --red:#ff3b3b; --amber:#ffaa00; --green:#00e87a; --cyan:#00c8f8; --blue:#2060ff; --purple:#b060ff;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,100,180,0.07) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 90% 20%,rgba(255,59,59,0.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,248,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,248,0.022) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+.wrapper{position:relative;z-index:1;}
 
-.status { font-size:18px; margin-bottom:20px; }
-.connected { color:#00e87a; }
-.error { color:red; }
+/* HEADER */
+header{background:linear-gradient(180deg,rgba(10,15,20,0.98),rgba(10,15,20,0.92));border-bottom:1px solid var(--border2);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(0,200,248,0.05),0 8px 32px rgba(0,0,0,0.6);}
+header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--cyan) 20%,var(--red) 50%,var(--amber) 80%,transparent 100%);opacity:0.45;}
+.brand{display:flex;align-items:center;gap:16px;}
+.brand-emblem{width:36px;height:36px;flex-shrink:0;}
+.brand-emblem svg{width:36px;height:36px;}
+.brand-text h1{font-family:'Share Tech Mono',monospace;font-size:17px;letter-spacing:3px;color:var(--text-hi);text-shadow:0 0 20px rgba(0,200,248,0.3);}
+.brand-text p{font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.header-center{display:flex;flex-direction:column;align-items:center;gap:1px;position:absolute;left:50%;transform:translateX(-50%);}
+#clock{font-family:'Share Tech Mono',monospace;font-size:26px;color:var(--cyan);letter-spacing:4px;text-shadow:0 0 24px rgba(0,200,248,0.5);}
+#dateLine{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2.5px;text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.rx-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;padding:4px 12px;border:1px solid var(--border2);border-radius:2px;color:var(--text-dim);transition:all 0.4s;}
+.rx-badge.live{color:var(--green);border-color:rgba(0,232,122,0.35);text-shadow:0 0 8px rgba(0,232,122,0.4);}
+.rx-badge.stale{color:var(--amber);border-color:rgba(255,170,0,0.35);}
+.rx-badge.old{color:var(--red);border-color:rgba(255,59,59,0.35);}
+.ai-btn{display:flex;align-items:center;gap:8px;padding:8px 18px;border:1px solid rgba(176,96,255,0.5);border-radius:3px;background:rgba(176,96,255,0.08);color:var(--purple);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;}
+.ai-btn:hover{background:rgba(176,96,255,0.18);border-color:rgba(176,96,255,0.8);box-shadow:0 0 20px rgba(176,96,255,0.3);}
+.ai-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.ai-btn-star svg{width:13px;height:13px;}
+.ai-btn.loading .ai-btn-star svg{animation:spin 1s linear infinite;}
+.ai-btn::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(176,96,255,0.15),transparent);}
+.ai-btn.loading::after{animation:shimmer 1.4s ease infinite;}
+@keyframes shimmer{to{left:200%;}} @keyframes spin{to{transform:rotate(360deg);}}
+.conn-pill{display:flex;align-items:center;gap:8px;padding:7px 16px;border:1px solid var(--border2);border-radius:3px;background:var(--surface2);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;cursor:pointer;transition:all 0.3s;user-select:none;}
+.conn-pill:hover{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,200,248,0.1);}
+.indicator{width:7px;height:7px;border-radius:50%;background:var(--text-dim);transition:all 0.3s;}
+.indicator.connected{background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;}
+.indicator.disconnected{background:var(--red);}
+.indicator.demo{background:var(--amber);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 
-.card {
-  background:#131f2a;
-  padding:15px;
-  margin:10px;
-  border-radius:8px;
-  display:inline-block;
-  min-width:180px;
-}
+/* ALERT BANNER */
+.alert-banner{padding:10px 32px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border2);background:var(--surface);min-height:46px;transition:all 0.5s;position:relative;overflow:hidden;}
+.alert-banner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--text-dim);transition:all 0.4s;}
+.alert-banner.warning::before{background:var(--amber);box-shadow:0 0 8px var(--amber);}
+.alert-banner.danger::before{background:var(--red);box-shadow:0 0 8px var(--red);}
+.alert-banner.warning{background:linear-gradient(90deg,rgba(255,170,0,0.06) 0%,transparent 60%);border-bottom-color:rgba(255,170,0,0.2);}
+.alert-banner.danger{background:linear-gradient(90deg,rgba(255,59,59,0.09) 0%,transparent 60%);border-bottom-color:rgba(255,59,59,0.3);animation:d-pulse 1.2s ease infinite;}
+@keyframes d-pulse{0%,100%{background:linear-gradient(90deg,rgba(255,59,59,0.09) 0%,transparent 60%)}50%{background:linear-gradient(90deg,rgba(255,59,59,0.16) 0%,transparent 60%)}}
+.banner-status{font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:3px;min-width:130px;}
+.banner-tags{flex:1;display:flex;flex-wrap:wrap;gap:6px;}
+.tag{padding:3px 10px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1px;animation:fadein 0.3s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+.tag.red{background:rgba(255,59,59,0.1);border:1px solid rgba(255,59,59,0.4);color:#ff8080;}
+.tag.amber{background:rgba(255,170,0,0.1);border:1px solid rgba(255,170,0,0.4);color:var(--amber);}
+.tag.green{background:rgba(0,232,122,0.07);border:1px solid rgba(0,232,122,0.3);color:var(--green);}
+.tag.muted{background:transparent;border:1px solid var(--border2);color:var(--text-dim);}
+
+/* LAYOUT */
+main{padding:20px 32px 32px;display:grid;grid-template-columns:280px 1fr;gap:18px;}
+
+/* LEFT PANEL */
+.unit-panel{display:flex;flex-direction:column;gap:14px;}
+.panel-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:20px;position:relative;overflow:hidden;}
+.panel-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,248,0.12),transparent);}
+.unit-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.unit-ring{width:38px;height:38px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;transition:all 0.5s;}
+.unit-ring::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid transparent;transition:all 0.5s;}
+.unit-ring.safe{border-color:var(--green);box-shadow:0 0 14px rgba(0,232,122,0.4);}
+.unit-ring.safe::after{border-color:rgba(0,232,122,0.2);animation:ring-p 2s ease infinite;}
+.unit-ring.warning{border-color:var(--amber);box-shadow:0 0 14px rgba(255,170,0,0.4);}
+.unit-ring.danger{border-color:var(--red);box-shadow:0 0 18px rgba(255,59,59,0.6);animation:ring-d 0.8s ease infinite;}
+@keyframes ring-p{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(1.1)}}
+@keyframes ring-d{0%,100%{box-shadow:0 0 18px rgba(255,59,59,0.6)}50%{box-shadow:0 0 30px rgba(255,59,59,0.9)}}
+.unit-ring-dot{width:10px;height:10px;border-radius:50%;background:var(--text-dim);transition:all 0.4s;}
+.unit-ring.safe .unit-ring-dot{background:var(--green);}
+.unit-ring.warning .unit-ring-dot{background:var(--amber);}
+.unit-ring.danger .unit-ring-dot{background:var(--red);}
+.unit-name{font-family:'Share Tech Mono',monospace;font-size:15px;letter-spacing:2px;color:var(--text-hi);}
+.unit-id{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1.5px;margin-top:2px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(22,32,48,0.8);}
+.stat-row:last-child{border-bottom:none;}
+.stat-label{font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;font-weight:500;}
+.stat-value{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--cyan);transition:color 0.4s;}
+.status-block{margin-top:16px;padding:11px 16px;border-radius:5px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:3px;transition:all 0.5s;}
+.status-block.offline{background:transparent;border:1px solid var(--border2);color:var(--text-dim);}
+.status-block.safe{background:rgba(0,232,122,0.06);border:1px solid rgba(0,232,122,0.3);color:var(--green);text-shadow:0 0 12px rgba(0,232,122,0.4);}
+.status-block.warning{background:rgba(255,170,0,0.07);border:1px solid rgba(255,170,0,0.35);color:var(--amber);}
+.status-block.danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.45);color:var(--red);animation:d-pulse 0.8s infinite;text-shadow:0 0 12px rgba(255,59,59,0.6);}
+.mq7-phase{display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid var(--border);border-radius:5px;background:var(--surface2);margin-top:12px;}
+.phase-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0;}
+.phase-dot.measuring{background:var(--green);animation:blink 1.2s infinite;}
+.phase-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--text-dim);}
+.phase-value{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text);margin-left:auto;letter-spacing:0.5px;}
+.cycle-note{margin-top:10px;font-size:10px;color:var(--text-dim);line-height:1.7;font-family:'IBM Plex Mono',monospace;}
+
+/* SENSOR GRID */
+.right-col{display:flex;flex-direction:column;gap:18px;}
+.sensor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.s-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:18px 16px 14px;position:relative;overflow:hidden;transition:border-color 0.4s,box-shadow 0.4s;}
+.s-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--border2));box-shadow:0 0 12px var(--accent,transparent);opacity:0.8;transition:opacity 0.4s;}
+.s-card::after{content:'';position:absolute;bottom:8px;right:8px;width:12px;height:12px;border-bottom:1px solid var(--accent,var(--border2));border-right:1px solid var(--accent,var(--border2));opacity:0.25;transition:opacity 0.4s;}
+.s-card.state-danger{border-color:rgba(255,59,59,0.45);box-shadow:0 0 20px rgba(255,59,59,0.12),inset 0 0 30px rgba(255,59,59,0.04);animation:card-d 1s ease infinite;}
+.s-card.state-warning{border-color:rgba(255,170,0,0.35);box-shadow:0 0 14px rgba(255,170,0,0.08);}
+@keyframes card-d{0%,100%{box-shadow:0 0 20px rgba(255,59,59,0.12)}50%{box-shadow:0 0 32px rgba(255,59,59,0.22)}}
+.s-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.s-label{font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;font-weight:500;}
+.s-sublabel{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text-dim);opacity:0.6;letter-spacing:1px;margin-top:2px;}
+.s-live{width:5px;height:5px;border-radius:50%;background:var(--text-dim);margin-top:4px;transition:all 0.4s;}
+.s-live.active{background:var(--accent,var(--green));box-shadow:0 0 6px var(--accent,var(--green));animation:blink 2s infinite;}
+.s-value-row{display:flex;align-items:baseline;gap:4px;margin-bottom:6px;}
+.s-value{font-family:'Share Tech Mono',monospace;font-size:36px;color:var(--text-hi);line-height:1;transition:color 0.4s,text-shadow 0.4s;}
+.s-value.danger{color:var(--red);text-shadow:0 0 16px rgba(255,59,59,0.5);}
+.s-value.warning{color:var(--amber);text-shadow:0 0 12px rgba(255,170,0,0.4);}
+.s-unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);}
+.s-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);min-height:12px;letter-spacing:0.5px;margin-bottom:10px;}
+.s-badge{display:inline-block;padding:3px 9px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1px;border:1px solid var(--border2);color:var(--text-dim);transition:all 0.3s;margin-bottom:10px;}
+.gauge{height:2px;background:rgba(255,255,255,0.04);border-radius:1px;overflow:hidden;margin-bottom:10px;}
+.gauge-fill{height:100%;border-radius:1px;background:var(--accent,var(--border2));transition:width 0.8s cubic-bezier(0.4,0,0.2,1),background 0.4s;}
+.spark{height:36px;}
+.spark canvas{width:100%!important;height:36px!important;}
+
+/* CHART ROW */
+.chart-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.chart-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:16px;position:relative;}
+.chart-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,248,0.08),transparent);}
+.chart-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px;font-weight:500;display:flex;align-items:center;gap:10px;}
+.chart-title-dot{width:4px;height:4px;border-radius:50%;}
+.chart-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.chart-body{height:150px;}
+
+/* LOG */
+.log-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:16px 18px;}
+.log-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.log-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);font-weight:500;}
+.log-btns{display:flex;gap:8px;}
+.log-btn{padding:4px 11px;border:1px solid var(--border2);border-radius:2px;background:transparent;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.log-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.log-body{background:var(--bg);border:1px solid var(--border);border-radius:4px;height:100px;overflow-y:auto;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:2;}
+.log-body::-webkit-scrollbar{width:2px;}
+.log-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:1px;}
+.log-entry{display:flex;gap:14px;}
+.log-ts{color:var(--text-dim);flex-shrink:0;}
+.log-msg.info{color:var(--cyan);}.log-msg.warn{color:var(--amber);}.log-msg.danger{color:var(--red);}.log-msg.safe{color:var(--green);}.log-msg.data{color:var(--text-dim);}.log-msg.ai{color:var(--purple);}
+
+/* CONNECTION PANEL */
+#connPanel{display:none;position:fixed;top:72px;right:32px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:22px;width:330px;z-index:200;box-shadow:0 24px 64px rgba(0,0,0,0.8);font-family:'IBM Plex Mono',monospace;backdrop-filter:blur(8px);}
+.conn-panel-title{font-size:11px;font-weight:600;letter-spacing:2.5px;color:var(--text-hi);margin-bottom:16px;}
+.conn-label{font-size:9px;color:var(--text-dim);margin-bottom:6px;letter-spacing:1.5px;}
+.conn-input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text-hi);padding:9px 13px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:12px;outline:none;transition:border-color 0.2s;}
+.conn-input:focus{border-color:var(--cyan);}
+.conn-btns{display:flex;gap:8px;margin-bottom:12px;}
+.conn-btn{flex:1;padding:9px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:1px;cursor:pointer;border:none;transition:all 0.2s;}
+.conn-btn.primary{background:var(--cyan);color:#000;}.conn-btn.primary:hover{background:#22d8ff;}
+.conn-btn.secondary{background:transparent;border:1px solid var(--border2);color:var(--text-dim);}.conn-btn.secondary:hover{border-color:var(--text-dim);}
+.conn-btn.demo{background:var(--amber);color:#000;}.conn-btn.demo:hover{background:#ffbe33;}
+.conn-check{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-dim);cursor:pointer;margin-bottom:14px;}
+.conn-note{font-size:9px;color:var(--text-dim);line-height:1.9;border-top:1px solid var(--border);padding-top:12px;}
+
+/* AI PANEL */
+#aiBackdrop{display:none;position:fixed;inset:0;background:rgba(5,7,9,0.7);backdrop-filter:blur(3px);z-index:300;animation:fadeBackdrop 0.25s ease;}
+@keyframes fadeBackdrop{from{opacity:0}to{opacity:1}}
+#aiPanel{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:96vw;background:var(--surface);border-left:1px solid rgba(176,96,255,0.25);z-index:400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.38s cubic-bezier(0.22,1,0.36,1);overflow:hidden;}
+#aiPanel.open{transform:translateX(0);}
+#aiPanel::before{content:'';display:block;height:2px;background:linear-gradient(90deg,transparent,var(--purple),var(--cyan),transparent);background-size:200% 100%;animation:grad-slide 3s linear infinite;flex-shrink:0;}
+@keyframes grad-slide{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.ai-panel-header{padding:20px 22px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.ai-panel-title{display:flex;align-items:center;gap:12px;}
+.ai-title-text h2{font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:2.5px;color:var(--text-hi);}
+.ai-title-text p{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1.5px;margin-top:3px;}
+.ai-close-btn{background:transparent;border:1px solid var(--border2);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;padding:5px 11px;border-radius:2px;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+.ai-close-btn:hover{border-color:var(--red);color:var(--red);}
+.ai-snapshot{margin:14px 22px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:5px;display:grid;grid-template-columns:1fr 1fr;gap:7px 20px;flex-shrink:0;}
+.snap-row{display:flex;justify-content:space-between;align-items:center;}
+.snap-key{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+.snap-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--cyan);font-weight:500;}
+.ai-loading{padding:30px 22px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.ai-loading-orb{width:48px;height:48px;border-radius:50%;border:2px solid rgba(176,96,255,0.15);border-top-color:var(--purple);animation:spin 1.1s linear infinite;box-shadow:0 0 24px rgba(176,96,255,0.25);}
+.ai-loading-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:2.5px;animation:tPulse 1.4s ease infinite;}
+@keyframes tPulse{0%,100%{opacity:0.4}50%{opacity:1}}
+.ai-loading-bars{display:flex;flex-direction:column;gap:9px;width:100%;padding:0 8px;}
+.skel{height:9px;border-radius:2px;background:var(--border);overflow:hidden;}
+.skel::after{content:'';display:block;height:100%;width:40%;background:linear-gradient(90deg,transparent,rgba(176,96,255,0.1),transparent);animation:shimmer 1.4s ease infinite;}
+.skel.w90{width:90%}.skel.w80{width:80%}.skel.w60{width:60%}.skel.w70{width:70%}
+.ai-response{flex:1;overflow-y:auto;padding:0 22px 22px;}
+.ai-response::-webkit-scrollbar{width:2px;}
+.ai-response::-webkit-scrollbar-thumb{background:rgba(176,96,255,0.3);border-radius:1px;}
+.ai-section{margin-top:18px;}
+.ai-section-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--purple);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.ai-section-label::after{content:'';flex:1;height:1px;background:rgba(176,96,255,0.12);}
+.ai-risk-chip{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:5px;font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:2px;width:100%;transition:all 0.4s;}
+.ai-risk-chip.risk-low{background:rgba(0,232,122,0.06);border:1px solid rgba(0,232,122,0.25);color:var(--green);}
+.ai-risk-chip.risk-medium{background:rgba(255,170,0,0.07);border:1px solid rgba(255,170,0,0.3);color:var(--amber);}
+.ai-risk-chip.risk-high{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.4);color:var(--red);animation:d-pulse 0.9s infinite;}
+.risk-dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.ai-summary{font-size:12px;line-height:1.75;color:var(--text);padding:12px 14px;border-radius:5px;background:var(--surface2);border-left:2px solid rgba(176,96,255,0.4);font-family:'Rajdhani',sans-serif;}
+.ai-bullets{display:flex;flex-direction:column;gap:8px;}
+.ai-bullet{display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);font-size:12px;line-height:1.5;color:var(--text);animation:fadein 0.3s ease backwards;}
+.ai-bullet-icon{flex-shrink:0;margin-top:1px;font-size:14px;}
+.ai-bullet.priority-urgent{border-color:rgba(255,59,59,0.25);background:rgba(255,59,59,0.04);}
+.ai-bullet.priority-warn{border-color:rgba(255,170,0,0.2);background:rgba(255,170,0,0.03);}
+.danger-card{border-radius:6px;border:1px solid var(--border);background:var(--surface2);padding:13px 14px;margin-bottom:9px;animation:fadein 0.35s ease backwards;position:relative;overflow:hidden;}
+.danger-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--dc,var(--border));box-shadow:0 0 8px var(--dc,transparent);}
+.danger-card.conf-high{--dc:var(--red);border-color:rgba(255,59,59,0.3);background:rgba(255,59,59,0.03);}
+.danger-card.conf-medium{--dc:var(--amber);border-color:rgba(255,170,0,0.25);background:rgba(255,170,0,0.03);}
+.danger-card.conf-low{--dc:var(--cyan);border-color:rgba(0,200,248,0.2);}
+.danger-card-top{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.danger-icon{font-size:18px;flex-shrink:0;}
+.danger-name{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1.5px;color:var(--text-hi);flex:1;}
+.danger-conf-pill{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;letter-spacing:1.5px;padding:2px 8px;border-radius:2px;}
+.conf-high .danger-conf-pill{background:rgba(255,59,59,0.15);color:var(--red);border:1px solid rgba(255,59,59,0.3);}
+.conf-medium .danger-conf-pill{background:rgba(255,170,0,0.12);color:var(--amber);border:1px solid rgba(255,170,0,0.3);}
+.conf-low .danger-conf-pill{background:rgba(0,200,248,0.08);color:var(--cyan);border:1px solid rgba(0,200,248,0.25);}
+.conf-bar{height:2px;border-radius:1px;background:var(--border);margin:7px 0;overflow:hidden;}
+.conf-bar-fill{height:100%;border-radius:1px;background:var(--dc,var(--border));transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
+.danger-desc{font-size:11px;color:var(--text);line-height:1.6;font-family:'Rajdhani',sans-serif;}
+.danger-trend{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);margin-top:5px;letter-spacing:0.5px;}
+.trend-up{color:var(--red);}.trend-down{color:var(--cyan);}.trend-flat{color:var(--green);}
+.no-threats{padding:14px 13px;background:rgba(0,232,122,0.05);border:1px solid rgba(0,232,122,0.18);border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--green);letter-spacing:0.5px;text-align:center;}
+.ai-footer{padding:11px 22px 15px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.ai-footer-note{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;}
+.ai-reanalyze{padding:5px 14px;border:1px solid rgba(176,96,255,0.3);border-radius:2px;background:transparent;color:var(--purple);font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.ai-reanalyze:hover{background:rgba(176,96,255,0.1);}
+.ai-reanalyze:disabled{opacity:0.4;cursor:not-allowed;}
+.ai-error{margin:20px 22px;padding:14px;border:1px solid rgba(255,59,59,0.3);border-radius:5px;background:rgba(255,59,59,0.06);font-family:'IBM Plex Mono',monospace;font-size:10px;color:#ff8080;line-height:1.7;}
+.ai-empty{padding:40px 22px;text-align:center;}
+.ai-empty-icon{font-size:36px;opacity:0.2;display:block;margin-bottom:14px;}
+.ai-empty-text{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1.5px;line-height:1.9;}
+.ai-empty-text span{color:var(--purple);}
+
+@media(max-width:1200px){.sensor-grid{grid-template-columns:repeat(2,1fr)}.chart-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:14px}.sensor-grid{grid-template-columns:repeat(2,1fr)}.chart-row{grid-template-columns:1fr}#aiPanel{width:100%}}
 </style>
 </head>
-
 <body>
+<div class="wrapper">
 
-<h1>🔥 FireWatch Pro</h1>
+<header>
+  <div class="brand">
+    <div class="brand-emblem">
+      <svg viewBox="0 0 36 36" fill="none">
+        <polygon points="18,3 33,29 3,29" stroke="#ff3b3b" stroke-width="1.5" fill="rgba(255,59,59,0.05)"/>
+        <line x1="18" y1="3" x2="18" y2="29" stroke="rgba(255,170,0,0.35)" stroke-width="0.8"/>
+        <circle cx="18" cy="19" r="3.5" fill="#ff3b3b" opacity="0.85"/>
+        <circle cx="18" cy="19" r="7" stroke="#ff3b3b" stroke-width="0.5" opacity="0.25"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <h1>FIREWATCH PRO</h1>
+      <p>Incident Command Monitoring System</p>
+    </div>
+  </div>
 
-<div id="status" class="status">CONNECTING...</div>
+  <div class="header-center">
+    <div id="clock">--:--:--</div>
+    <div id="dateLine">---</div>
+  </div>
 
-<div class="card">
-  <h3>Temperature</h3>
-  <div id="temp">--</div>
+  <div class="header-right">
+    <div class="rx-badge" id="rxBadge">NO DATA</div>
+    <button class="ai-btn" id="aiBtn" onclick="openAIPanel()">
+      <span class="ai-btn-star"><svg viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.4 5.6L12.5 7L8.4 8.4L7 12.5L5.6 8.4L1.5 7L5.6 5.6L7 1.5Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg></span>
+      AI ANALYZE
+    </button>
+    <div class="conn-pill" id="connPill" onclick="togglePanel()">
+      <div class="indicator" id="indicator"></div>
+      <span id="connLabel">NOT CONNECTED</span>
+    </div>
+  </div>
+</header>
+
+<div id="connPanel">
+  <div class="conn-panel-title">WEBSOCKET CONNECTION</div>
+  <div class="conn-label">SERVER URL</div>
+  <input id="wsUrl" type="text" class="conn-input" placeholder="wss://your-app.onrender.com" value="">
+  <div class="conn-btns">
+    <button class="conn-btn primary" onclick="connectWS()">CONNECT</button>
+    <button class="conn-btn secondary" onclick="disconnectWS()">DISCONNECT</button>
+    <button class="conn-btn demo" onclick="startDemo()">DEMO</button>
+  </div>
+  <label class="conn-check"><input type="checkbox" id="autoReconnect"> Auto-reconnect on drop</label>
+  <div class="conn-note">
+    ESP32 sends HTTP POST to:<br>
+    <span style="color:var(--amber)">https://your-app.onrender.com/data</span><br><br>
+    JSON fields:<br>
+    <span style="color:var(--cyan)">skin_temp, pressure, bmp_temp, mq2_raw, mq7_raw, mq7_phase, ir_value</span>
+  </div>
 </div>
 
-<div class="card">
-  <h3>Pressure</h3>
-  <div id="pressure">--</div>
+<div class="alert-banner" id="alertBanner">
+  <span class="banner-status" id="bannerStatus" style="color:var(--text-dim)">STANDBY</span>
+  <div class="banner-tags" id="bannerTags"><span class="tag muted">WAITING FOR ESP32</span></div>
 </div>
 
-<div class="card">
-  <h3>MQ2</h3>
-  <div id="mq2">--</div>
-</div>
+<main>
+  <div class="unit-panel">
+    <div class="panel-card">
+      <div class="unit-header">
+        <div class="unit-ring" id="unitRing"><div class="unit-ring-dot"></div></div>
+        <div>
+          <div class="unit-name">UNIT ALPHA-1</div>
+          <div class="unit-id">ESP32 · FW-001 · WEARABLE</div>
+        </div>
+      </div>
+      <div class="stat-row"><span class="stat-label">Skin Temp</span><span class="stat-value" id="mv-skin">--</span></div>
+      <div class="stat-row"><span class="stat-label">Altitude</span><span class="stat-value" id="mv-alt">--</span></div>
+      <div class="stat-row"><span class="stat-label">Pressure</span><span class="stat-value" id="mv-pressure">--</span></div>
+      <div class="stat-row"><span class="stat-label">Uptime</span><span class="stat-value" id="mv-uptime" style="color:var(--text-dim);font-size:12px">--</span></div>
+      <div class="status-block offline" id="unitStatus">OFFLINE</div>
+    </div>
+    <div class="panel-card">
+      <div style="font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:12px;text-transform:uppercase;font-weight:500">MQ-7 Thermal Cycle</div>
+      <div class="mq7-phase">
+        <div class="phase-dot" id="mq7PhaseDot"></div>
+        <span class="phase-label">PHASE</span>
+        <span class="phase-value" id="mq7PhaseLabel">--</span>
+      </div>
+      <div style="margin-top:12px">
+        <div class="stat-row"><span class="stat-label">Last Sample</span><span class="stat-value" id="mq7LastSample" style="font-size:11px">--</span></div>
+        <div class="stat-row" style="border-bottom:none"><span class="stat-label">Cycle</span><span class="stat-value" style="font-size:11px;color:var(--text-dim)">60s / 90s</span></div>
+      </div>
+      <p class="cycle-note">60s at 5V (purge) then 90s at 1.4V (measure). CO sampled at end of low phase only.</p>
+    </div>
+  </div>
 
-<div class="card">
-  <h3>MQ7</h3>
-  <div id="mq7">--</div>
+  <div class="right-col">
+    <div class="sensor-grid">
+      <div class="s-card" id="card-mq7" style="--accent:var(--amber)">
+        <div class="s-header"><div><div class="s-label">MQ-7</div><div class="s-sublabel">CARBON MONOXIDE</div></div><div class="s-live" id="live-mq7"></div></div>
+        <div class="s-value-row"><span class="s-value" id="v-mq7">---</span><span class="s-unit">ADC</span></div>
+        <div class="s-sub" id="sub-mq7">LAST SAMPLED: --</div>
+        <span class="s-badge" id="b-mq7">STANDBY</span>
+        <div class="gauge"><div class="gauge-fill" id="g-mq7" style="width:0%;background:var(--amber)"></div></div>
+        <div class="spark"><canvas id="sp-mq7"></canvas></div>
+      </div>
+      <div class="s-card" id="card-mq2" style="--accent:var(--red)">
+        <div class="s-header"><div><div class="s-label">MQ-2</div><div class="s-sublabel">SMOKE / COMBUSTIBLE GAS</div></div><div class="s-live" id="live-mq2"></div></div>
+        <div class="s-value-row"><span class="s-value" id="v-mq2">---</span><span class="s-unit">ADC</span></div>
+        <div class="s-sub" id="sub-mq2">0–4095 RANGE</div>
+        <span class="s-badge" id="b-mq2">STANDBY</span>
+        <div class="gauge"><div class="gauge-fill" id="g-mq2" style="width:0%;background:var(--red)"></div></div>
+        <div class="spark"><canvas id="sp-mq2"></canvas></div>
+      </div>
+      <div class="s-card" id="card-temp" style="--accent:var(--cyan)">
+        <div class="s-header"><div><div class="s-label">DS18B20</div><div class="s-sublabel">SKIN / BODY TEMPERATURE</div></div><div class="s-live" id="live-temp"></div></div>
+        <div class="s-value-row"><span class="s-value" id="v-temp">---</span><span class="s-unit">°C</span></div>
+        <div class="s-sub" id="sub-temp">PERIPHERAL SENSOR</div>
+        <span class="s-badge" id="b-temp">STANDBY</span>
+        <div class="gauge"><div class="gauge-fill" id="g-temp" style="width:0%;background:var(--cyan)"></div></div>
+        <div class="spark"><canvas id="sp-temp"></canvas></div>
+      </div>
+      <div class="s-card" id="card-pressure" style="--accent:var(--blue)">
+        <div class="s-header"><div><div class="s-label">BMP280</div><div class="s-sublabel">BAROMETRIC PRESSURE</div></div><div class="s-live" id="live-pressure"></div></div>
+        <div class="s-value-row"><span class="s-value" id="v-pressure">----</span><span class="s-unit">hPa</span></div>
+        <div class="s-sub">ALT: <span id="v-alt" style="color:var(--cyan)">---m</span> &nbsp;·&nbsp; <span id="v-bmptemp">---°C</span></div>
+        <span class="s-badge" id="b-pressure">STANDBY</span>
+        <div class="gauge"><div class="gauge-fill" id="g-pressure" style="width:50%;background:var(--blue)"></div></div>
+        <div class="spark"><canvas id="sp-pressure"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title"><span class="chart-title-dot" style="background:var(--red)"></span>MQ-2 Gas History</div>
+        <div class="chart-body"><canvas id="chartMQ2"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span class="chart-title-dot" style="background:var(--cyan)"></span>Temperature History</div>
+        <div class="chart-body"><canvas id="chartTemp"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span class="chart-title-dot" style="background:var(--blue)"></span>Pressure History</div>
+        <div class="chart-body"><canvas id="chartPressure"></canvas></div>
+      </div>
+    </div>
+
+    <div class="log-card">
+      <div class="log-header">
+        <span class="log-title">System Log</span>
+        <div class="log-btns">
+          <button class="log-btn" onclick="clearLog()">CLEAR</button>
+          <button class="log-btn" onclick="exportLog()">EXPORT</button>
+        </div>
+      </div>
+      <div class="log-body" id="logBody"></div>
+    </div>
+  </div>
+</main>
+
+<div id="aiBackdrop" onclick="closeAIPanel()"></div>
+<div id="aiPanel">
+  <div class="ai-panel-header">
+    <div class="ai-panel-title">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3L13.8 8.2L19 10L13.8 11.8L12 17L10.2 11.8L5 10L10.2 8.2L12 3Z" stroke="#b060ff" stroke-width="1.3" stroke-linejoin="round"/>
+        <circle cx="19" cy="5" r="1.3" fill="#b060ff" opacity="0.5"/>
+        <circle cx="5" cy="19" r="0.9" fill="#b060ff" opacity="0.35"/>
+      </svg>
+      <div class="ai-title-text">
+        <h2>AI INCIDENT ANALYSIS</h2>
+        <p>REAL-TIME SENSOR THREAT ASSESSMENT</p>
+      </div>
+    </div>
+    <button class="ai-close-btn" onclick="closeAIPanel()">&#10005; CLOSE</button>
+  </div>
+
+  <div class="ai-snapshot" id="aiSnapshot">
+    <div class="snap-row"><span class="snap-key">MQ-7 CO</span><span class="snap-val" id="snap-mq7">--</span></div>
+    <div class="snap-row"><span class="snap-key">MQ-2 SMOKE</span><span class="snap-val" id="snap-mq2">--</span></div>
+    <div class="snap-row"><span class="snap-key">SKIN TEMP</span><span class="snap-val" id="snap-temp">--</span></div>
+    <div class="snap-row"><span class="snap-key">PRESSURE</span><span class="snap-val" id="snap-pressure">--</span></div>
+    <div class="snap-row"><span class="snap-key">AMBIENT</span><span class="snap-val" id="snap-bmptemp">--</span></div>
+    <div class="snap-row"><span class="snap-key">ALERT LVL</span><span class="snap-val" id="snap-alert">--</span></div>
+  </div>
+
+  <div id="aiLoading" class="ai-loading" style="display:none">
+    <div class="ai-loading-orb"></div>
+    <div class="ai-loading-text">ANALYZING SENSOR DATA...</div>
+    <div class="ai-loading-bars">
+      <div class="skel w90"></div><div class="skel w80"></div>
+      <div class="skel w60"></div><div class="skel w90"></div>
+      <div class="skel w70"></div><div class="skel w80"></div>
+    </div>
+  </div>
+
+  <div id="aiError" class="ai-error" style="display:none"></div>
+  <div class="ai-response" id="aiResponse" style="display:none"></div>
+
+  <div id="aiEmpty" class="ai-empty">
+    <span class="ai-empty-icon">&#10022;</span>
+    <p class="ai-empty-text">START DEMO OR CONNECT<br>TO ESP32 TO ENABLE<br><span>AI ANALYSIS</span></p>
+  </div>
+
+  <div class="ai-footer" id="aiFooter" style="display:none">
+    <span class="ai-footer-note" id="aiTimestamp">ANALYZED AT --:--:--</span>
+    <button class="ai-reanalyze" id="reanalyzeBtn" onclick="runAIAnalysis()">&#8635; RE-ANALYZE</button>
+  </div>
 </div>
 
 <script>
+let ws=null,demoTimer=null,reconnTimer=null,startTime=null,lastRx=null;
+let demoTick=0,demoPhase=0,lastMQ7Raw=0,aiPanelOpen=false;
+const liveData={skinTemp:null,pressure:null,bmpTemp:null,mq2Raw:null,mq7Raw:null,mq7Phase:null,irValue:null,alertLevel:'STANDBY'};
+const MAX_PTS=60;
+const hist={mq7:[],mq2:[],temp:[],pressure:[]};
+const cbuf={labels:[],mq2:[],temp:[],pressure:[]};
+const sparks={};
+let chartMQ2,chartTemp,chartPressure;
+const logEntries=[];
 
-// 🔥 YOUR FINAL SERVER (DO NOT CHANGE)
-const WS_URL = "wss://firewatchpro.onrender.com";
+setInterval(()=>{const n=new Date();document.getElementById('clock').textContent=n.toTimeString().slice(0,8);document.getElementById('dateLine').textContent=n.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'}).toUpperCase();},1000);
+setInterval(()=>{if(!startTime)return;const s=Math.floor((Date.now()-startTime)/1000);document.getElementById('mv-uptime').textContent=`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;},1000);
+setInterval(()=>{const b=document.getElementById('rxBadge');if(!lastRx)return;const age=Math.floor((Date.now()-lastRx)/1000);if(age<4){b.className='rx-badge live';b.textContent='RX  LIVE';}else if(age<12){b.className='rx-badge stale';b.textContent=`RX  ${age}s AGO`;}else{b.className='rx-badge old';b.textContent=`RX  ${age}s AGO`;}},1000);
 
-let ws;
+function togglePanel(){const p=document.getElementById('connPanel');p.style.display=p.style.display==='none'?'block':'none';}
+document.addEventListener('click',e=>{if(!e.target.closest('#connPanel')&&!e.target.closest('#connPill'))document.getElementById('connPanel').style.display='none';});
+(function(){const proto=location.protocol==='https:'?'wss':'ws';const host=location.host;if(host&&!host.includes('localhost')&&!host.includes('127.0.0.1'))document.getElementById('wsUrl').value=`${proto}://${host}`;})();
+function setConn(s,l){document.getElementById('indicator').className='indicator '+s;document.getElementById('connLabel').textContent=l;}
 
-function connectWS() {
+function connectWS(){const url=document.getElementById('wsUrl').value.trim();if(!url)return;stopDemo();if(ws)ws.close();clearTimeout(reconnTimer);setConn('','CONNECTING...');log(`Connecting to ${url}`,'info');ws=new WebSocket(url);ws.onopen=()=>{startTime=Date.now();setConn('connected','CONNECTED');log('WebSocket connected','safe');document.getElementById('connPanel').style.display='none';};ws.onmessage=e=>{lastRx=Date.now();try{processData(JSON.parse(e.data));}catch(err){log('Runtime error: '+err.message,'warn');}};ws.onclose=()=>{setConn('disconnected','DISCONNECTED');log('Connection closed','warn');if(document.getElementById('autoReconnect').checked){log('Reconnecting in 5s...','info');reconnTimer=setTimeout(connectWS,5000);}};ws.onerror=()=>{setConn('disconnected','ERROR');log('WebSocket error','danger');};}
+function disconnectWS(){clearTimeout(reconnTimer);stopDemo();if(ws){ws.close();ws=null;}setConn('disconnected','DISCONNECTED');startTime=null;log('Disconnected','info');resetStandby();}
 
-  document.getElementById("status").innerText = "CONNECTING...";
+function startDemo(){stopDemo();startTime=Date.now();setConn('demo','DEMO MODE');log('Demo mode started','info');document.getElementById('connPanel').style.display='none';demoPhase=0;demoTick=0;demoTimer=setInterval(()=>{demoTick++;if(demoTick%90===0){demoPhase=(demoPhase+1)%3;log(`Demo phase: ${['NORMAL','WARNING','DANGER'][demoPhase]}`,['safe','warn','danger'][demoPhase]);}const mu=demoTick%25===0;let d={};if(demoPhase===0){d={skin_temp:36.2+Math.random()*0.8,pressure:1013+((Math.random()-.5)*4),bmp_temp:27+Math.random()*3,mq2_raw:Math.round(400+Math.random()*300),mq7_raw:mu?Math.round(600+Math.random()*400):undefined,mq7_phase:demoTick%25<15?'HEATING_5V':'MEASURING_1_4V',ir_value:Math.round(40000+Math.random()*20000)};}else if(demoPhase===1){d={skin_temp:37.5+Math.random()*1.2,pressure:1008+((Math.random()-.5)*6),bmp_temp:55+Math.random()*15,mq2_raw:Math.round(1800+Math.random()*800),mq7_raw:mu?Math.round(2000+Math.random()*1000):undefined,mq7_phase:'MEASURING_1_4V',ir_value:Math.round(55000+Math.random()*10000)};}else{d={skin_temp:39+Math.random()*2,pressure:1001+((Math.random()-.5)*8),bmp_temp:120+Math.random()*50,mq2_raw:Math.round(3200+Math.random()*800),mq7_raw:mu?Math.round(3500+Math.random()*500):undefined,mq7_phase:'MEASURING_1_4V',ir_value:500};}processData(d);},2000);}
+function stopDemo(){if(demoTimer){clearInterval(demoTimer);demoTimer=null;}}
 
-  ws = new WebSocket(WS_URL);
-
-  ws.onopen = () => {
-    console.log("✅ CONNECTED");
-    document.getElementById("status").innerText = "CONNECTED";
-    document.getElementById("status").className = "status connected";
-  };
-
-  ws.onmessage = (event) => {
-    console.log("📡 DATA:", event.data);
-
-    const d = JSON.parse(event.data);
-
-    document.getElementById("temp").innerText =
-      d.skin_temp ? d.skin_temp + " °C" : "--";
-
-    document.getElementById("pressure").innerText =
-      d.pressure ? d.pressure + " hPa" : "--";
-
-    document.getElementById("mq2").innerText =
-      d.mq2_raw ?? "--";
-
-    document.getElementById("mq7").innerText =
-      d.mq7_raw ?? "--";
-  };
-
-  ws.onerror = (err) => {
-    console.error("❌ WS ERROR:", err);
-    document.getElementById("status").innerText = "ERROR";
-    document.getElementById("status").className = "status error";
-  };
-
-  ws.onclose = () => {
-    console.log("🔌 DISCONNECTED - retrying...");
-    document.getElementById("status").innerText = "RECONNECTING...";
-    setTimeout(connectWS, 3000);
-  };
+function processData(d){
+  lastRx=Date.now();const ts=new Date().toTimeString().slice(0,8);
+  const skinTemp=d.skin_temp!=null?+parseFloat(d.skin_temp).toFixed(1):null;
+  const pressure=d.pressure!=null?+parseFloat(d.pressure).toFixed(2):null;
+  const bmpTemp=d.bmp_temp!=null?+parseFloat(d.bmp_temp).toFixed(1):null;
+  const mq2Raw=d.mq2_raw!=null?Math.round(d.mq2_raw):null;
+  const mq7Phase=d.mq7_phase||null;
+  const irValue=d.ir_value!=null?Math.round(d.ir_value):null;
+  if(d.mq7_raw!=null&&d.mq7_raw>0){lastMQ7Raw=Math.round(d.mq7_raw);log(`MQ-7 sampled: ADC ${lastMQ7Raw}`,'data');document.getElementById('mq7LastSample').textContent=ts;}
+  const mq7Raw=lastMQ7Raw;
+  const alt=pressure?Math.round(44330*(1-Math.pow(pressure/1013.25,0.1903))):null;
+  if(skinTemp!=null)liveData.skinTemp=skinTemp;if(pressure!=null)liveData.pressure=pressure;if(bmpTemp!=null)liveData.bmpTemp=bmpTemp;if(mq2Raw!=null)liveData.mq2Raw=mq2Raw;if(mq7Raw>0)liveData.mq7Raw=mq7Raw;if(mq7Phase)liveData.mq7Phase=mq7Phase;if(irValue!=null)liveData.irValue=irValue;
+  const us=document.getElementById('unitStatus');
+  if(us?.textContent==='OFFLINE'){us.className='status-block safe';us.textContent='NOMINAL';document.getElementById('unitRing').className='unit-ring safe';const e=document.getElementById('aiEmpty');if(e)e.innerHTML='<span class="ai-empty-icon">&#10022;</span><p class="ai-empty-text">SENSOR DATA LIVE<br>CLICK <span>AI ANALYZE</span> TO<br>GET THREAT ASSESSMENT</p>';}
+  if(mq7Raw>0){const p=Math.min(100,mq7Raw/4095*100);const[b,l]=classifyMQ7(mq7Raw);setCard('mq7',mq7Raw,p,b,l);const s=document.getElementById('sub-mq7');if(s)s.textContent=mq7Phase==='MEASURING_1_4V'?'IN MEASUREMENT WINDOW':'PURGE CYCLE ACTIVE';push(hist.mq7,mq7Raw);}
+  if(mq2Raw!=null){const p=Math.min(100,mq2Raw/4095*100);const[b,l]=classifyMQ2(mq2Raw);setCard('mq2',mq2Raw,p,b,l);const s=document.getElementById('sub-mq2');if(s)s.textContent=`VOLTAGE: ~${(mq2Raw/4095*3.3).toFixed(2)}V`;push(hist.mq2,mq2Raw);push(cbuf.mq2,mq2Raw);}
+  if(skinTemp!=null){const p=Math.min(100,Math.max(0,skinTemp/50*100));const[b,l]=classifySkinTemp(skinTemp);setCard('temp',skinTemp,p,b,l);const s=document.getElementById('sub-temp');if(s)s.textContent=skinTemp>38?`ELEVATED: ${skinTemp}\u00b0C`:'WITHIN NORMAL RANGE';const ms=document.getElementById('mv-skin');if(ms){ms.textContent=skinTemp+'\u00b0C';ms.style.color=skinTemp>38?'var(--red)':'var(--cyan)';}push(hist.temp,skinTemp);push(cbuf.temp,skinTemp);}
+  if(pressure!=null){const p=Math.min(100,Math.max(0,(pressure-950)/130*100));const[b,l]=classifyPressure(pressure);setCard('pressure',pressure,p,b,l);const vA=document.getElementById('v-alt'),vB=document.getElementById('v-bmptemp'),mP=document.getElementById('mv-pressure'),mA=document.getElementById('mv-alt');if(vA)vA.textContent=alt!==null?alt+'m':'---';if(vB)vB.textContent=bmpTemp!==null?bmpTemp+'\u00b0C':'---';if(mP)mP.textContent=pressure+' hPa';if(mA)mA.textContent=alt!==null?alt+'m':'--';push(hist.pressure,pressure);push(cbuf.pressure,pressure);}
+  if(mq7Phase){const isM=mq7Phase.includes('MEASURING');const pl=document.getElementById('mq7PhaseLabel'),pd=document.getElementById('mq7PhaseDot');if(pl)pl.textContent=isM?'MEASURING  1.4V':'HEATING  5.0V';if(pd)pd.className='phase-dot'+(isM?' measuring':'');}
+  push(cbuf.labels,ts);updateCharts();computeAlerts({skinTemp,mq2Raw,mq7Raw,pressure,bmpTemp,irValue});
+}
+function push(a,v){a.push(v);if(a.length>MAX_PTS)a.shift();}
+function classifyMQ7(v){if(v>3000)return[makeB('CRITICAL \u2014 HIGH CO','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>2000)return[makeB('WARNING \u2014 ELEVATED','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>1200)return[makeB('CAUTION \u2014 DETECTABLE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('NORMAL \u2014 CO CLEAR','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
+function classifyMQ2(v){if(v>3500)return[makeB('CRITICAL \u2014 HEAVY SMOKE','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>2500)return[makeB('WARNING \u2014 SMOKE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>2000)return[makeB('CAUTION \u2014 GAS ELEVATED','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('CLEAR','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
+function classifySkinTemp(v){if(v>40)return[makeB('HIGH \u2014 HEAT STRESS','var(--red)','rgba(255,59,59,0.1)'),'danger'];if(v>38.5)return[makeB('ELEVATED \u2014 FEVER','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v<10)return[makeB('LOW \u2014 HYPOTHERMIA RISK','var(--cyan)','rgba(0,200,248,0.07)'),'warning'];return[makeB('NORMAL RANGE','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
+function classifyPressure(v){if(v<975)return[makeB('LOW PRESSURE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];if(v>1045)return[makeB('HIGH PRESSURE','var(--amber)','rgba(255,170,0,0.08)'),'warning'];return[makeB('NORMAL','var(--green)','rgba(0,232,122,0.06)'),'safe'];}
+function makeB(t,c,b){return{txt:t,color:c,bg:b};}
+function setCard(id,value,pct,badge,level){
+  const vEl=document.getElementById('v-'+id),bEl=document.getElementById('b-'+id),card=document.getElementById('card-'+id),gEl=document.getElementById('g-'+id),lEl=document.getElementById('live-'+id);
+  if(vEl){vEl.textContent=value;vEl.className='s-value'+(level==='danger'?' danger':level==='warning'?' warning':'');}
+  if(bEl){bEl.textContent=badge.txt;bEl.style.cssText=`color:${badge.color};background:${badge.bg};border:1px solid ${badge.color}55;display:inline-block;margin-bottom:10px;padding:3px 9px;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1px;`;}
+  if(card){card.classList.remove('state-danger','state-warning');if(level==='danger')card.classList.add('state-danger');else if(level==='warning')card.classList.add('state-warning');}
+  if(gEl)gEl.style.width=pct+'%';
+  if(lEl)lEl.className='s-live active';
+  updateSpark(id,hist[id]||[]);
 }
 
-// 🔥 AUTO CONNECT
-connectWS();
+let lastLevel='';
+function computeAlerts(v){
+  const tags=[],crit=[];let level='safe';
+  const chk=(cond,txt,cls,isDanger)=>{if(!cond)return;tags.push({txt,cls});if(isDanger){level='danger';crit.push(txt);}else if(level==='safe')level='warning';};
+  if(v.mq7Raw>0){chk(v.mq7Raw>3000,'CO CRITICAL','red',true);chk(v.mq7Raw>2000&&v.mq7Raw<=3000,'CO ELEVATED','amber',false);}
+  chk(v.mq2Raw>4000,'HEAVY SMOKE','red',true);chk(v.mq2Raw>3000&&v.mq2Raw<=4000,'SMOKE DETECTED','amber',false);chk(v.mq2Raw>2000&&v.mq2Raw<=3000,'GAS ELEVATED','amber',false);
+  chk(v.bmpTemp>80,'EXTREME AMBIENT HEAT','red',true);chk(v.bmpTemp>50&&v.bmpTemp<=80,'HIGH AMBIENT TEMP','amber',false);
+  chk(v.skinTemp>40,'HEAT STRESS','red',true);chk(v.skinTemp>38.5&&v.skinTemp<=40,'ELEVATED TEMP','amber',false);chk(v.skinTemp<10,'HYPOTHERMIA RISK','red',true);
+  if(v.irValue!=null&&v.irValue<1000)tags.push({txt:'IR \u2014 NO CONTACT',cls:'muted'});
+  const ring=document.getElementById('unitRing'),us=document.getElementById('unitStatus');
+  document.getElementById('alertBanner').className='alert-banner '+(level==='safe'?'':level);
+  liveData.alertLevel=level.toUpperCase();
+  document.getElementById('bannerStatus').style.color=level==='safe'?'var(--green)':level==='warning'?'var(--amber)':'var(--red)';
+  if(level==='safe'){document.getElementById('bannerStatus').textContent='ALL CLEAR';document.getElementById('bannerTags').innerHTML='<span class="tag green">ALL SYSTEMS NOMINAL</span>'+(v.irValue!=null&&v.irValue<1000?'<span class="tag muted">IR \u2014 NO CONTACT</span>':'');ring.className='unit-ring safe';us.className='status-block safe';us.textContent='NOMINAL';}
+  else if(level==='warning'){document.getElementById('bannerStatus').textContent='WARNING';document.getElementById('bannerTags').innerHTML=tags.map(t=>`<span class="tag ${t.cls}">${t.txt}</span>`).join('');ring.className='unit-ring warning';us.className='status-block warning';us.textContent='WARNING';if(lastLevel!=='warning'&&lastLevel!=='danger')log('WARNING: '+tags.map(t=>t.txt).join(' | '),'warn');}
+  else{document.getElementById('bannerStatus').textContent='DANGER';document.getElementById('bannerTags').innerHTML=tags.map(t=>`<span class="tag ${t.cls}">${t.txt}</span>`).join('');ring.className='unit-ring danger';us.className='status-block danger';us.textContent='EVACUATE';if(lastLevel!=='danger')log('CRITICAL: '+crit.join(' | '),'danger');}
+  lastLevel=level;
+}
 
+const sparkColors={mq7:'#ffaa00',mq2:'#ff3b3b',temp:'#00c8f8',pressure:'#2060ff'};
+function initSparks(){Object.keys(sparkColors).forEach(id=>{const el=document.getElementById('sp-'+id);if(!el)return;sparks[id]=new Chart(el.getContext('2d'),{type:'line',data:{labels:Array(20).fill(''),datasets:[{data:Array(20).fill(null),borderColor:sparkColors[id],borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:sparkColors[id]+'18',tension:0.4}]},options:{responsive:false,animation:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});});}
+function updateSpark(id,data){if(!sparks[id])return;const sl=data.slice(-20);sparks[id].data.labels=sl.map(()=>'');sparks[id].data.datasets[0].data=sl;sparks[id].update('none');}
+
+function initCharts(){
+  const gc='rgba(22,32,48,0.9)',tc='#3a5568';
+  const sc={x:{display:false},y:{ticks:{color:tc,font:{family:'IBM Plex Mono',size:9}},grid:{color:gc},border:{color:gc}}};
+  chartMQ2=new Chart(document.getElementById('chartMQ2'),{type:'line',data:{labels:[],datasets:[{label:'MQ-2',data:[],borderColor:'#ff3b3b',backgroundColor:'rgba(255,59,59,0.06)',borderWidth:1.5,pointRadius:0,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false}},scales:sc}});
+  chartTemp=new Chart(document.getElementById('chartTemp'),{type:'line',data:{labels:[],datasets:[{label:'Skin',data:[],borderColor:'#00c8f8',backgroundColor:'rgba(0,200,248,0.06)',borderWidth:1.5,pointRadius:0,tension:0.4,fill:true,yAxisID:'yA'},{label:'Ambient',data:[],borderColor:'#ffaa00',backgroundColor:'rgba(255,170,0,0.04)',borderWidth:1,pointRadius:0,tension:0.4,fill:false,yAxisID:'yA'}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{labels:{color:tc,font:{family:'IBM Plex Mono',size:9},boxWidth:8}}},scales:{x:{display:false},yA:{ticks:{color:tc,font:{family:'IBM Plex Mono',size:9}},grid:{color:gc}}}}});
+  chartPressure=new Chart(document.getElementById('chartPressure'),{type:'line',data:{labels:[],datasets:[{label:'Pressure',data:[],borderColor:'#2060ff',backgroundColor:'rgba(32,96,255,0.06)',borderWidth:1.5,pointRadius:0,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false}},scales:sc}});
+}
+function updateCharts(){chartMQ2.data.labels=cbuf.labels;chartMQ2.data.datasets[0].data=cbuf.mq2;chartMQ2.update('none');chartTemp.data.labels=cbuf.labels;chartTemp.data.datasets[0].data=cbuf.temp;chartTemp.update('none');chartPressure.data.labels=cbuf.labels;chartPressure.data.datasets[0].data=cbuf.pressure;chartPressure.update('none');}
+
+function log(msg,type='info'){const ts=new Date().toTimeString().slice(0,8);logEntries.unshift({ts,msg,type});const body=document.getElementById('logBody');const el=document.createElement('div');el.className='log-entry';el.innerHTML=`<span class="log-ts">[${ts}]</span><span class="log-msg ${type}">${msg}</span>`;body.insertBefore(el,body.firstChild);while(body.children.length>60)body.removeChild(body.lastChild);}
+function clearLog(){logEntries.length=0;document.getElementById('logBody').innerHTML='';log('Log cleared','info');}
+function exportLog(){const txt=logEntries.map(e=>`[${e.ts}] ${e.msg}`).join('\n');const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);a.download=`firewatch_log_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.txt`;a.click();}
+
+function resetStandby(){['mq7','mq2','temp','pressure'].forEach(id=>{const v=document.getElementById('v-'+id);if(v)v.textContent='---';const g=document.getElementById('g-'+id);if(g)g.style.width='0%';const b=document.getElementById('b-'+id);if(b){b.textContent='STANDBY';b.style.cssText='';}const c=document.getElementById('card-'+id);if(c)c.classList.remove('state-danger','state-warning');const l=document.getElementById('live-'+id);if(l)l.className='s-live';});document.getElementById('unitStatus').className='status-block offline';document.getElementById('unitStatus').textContent='OFFLINE';document.getElementById('unitRing').className='unit-ring';document.getElementById('alertBanner').className='alert-banner';document.getElementById('bannerStatus').textContent='STANDBY';document.getElementById('bannerStatus').style.color='var(--text-dim)';document.getElementById('bannerTags').innerHTML='<span class="tag muted">DISCONNECTED</span>';}
+
+function openAIPanel(){document.getElementById('aiBackdrop').style.display='block';document.getElementById('aiPanel').classList.add('open');aiPanelOpen=true;updateSnap();const hasData=liveData.mq2Raw!=null||liveData.skinTemp!=null;if(hasData)runAIAnalysis();}
+function closeAIPanel(){document.getElementById('aiBackdrop').style.display='none';document.getElementById('aiPanel').classList.remove('open');aiPanelOpen=false;}
+function updateSnap(){document.getElementById('snap-mq7').textContent=liveData.mq7Raw!=null?liveData.mq7Raw+' ADC':'N/A';document.getElementById('snap-mq2').textContent=liveData.mq2Raw!=null?liveData.mq2Raw+' ADC':'N/A';document.getElementById('snap-temp').textContent=liveData.skinTemp!=null?liveData.skinTemp+' \u00b0C':'N/A';document.getElementById('snap-pressure').textContent=liveData.pressure!=null?liveData.pressure+' hPa':'N/A';document.getElementById('snap-bmptemp').textContent=liveData.bmpTemp!=null?liveData.bmpTemp+' \u00b0C':'N/A';document.getElementById('snap-alert').textContent=liveData.alertLevel;}
+
+let aiAnalyzing=false;
+function runAIAnalysis(){
+  if(aiAnalyzing)return;
+  const hasData=liveData.mq2Raw!=null||liveData.skinTemp!=null;if(!hasData)return;
+  aiAnalyzing=true;
+  const btn=document.getElementById('aiBtn'),reBtn=document.getElementById('reanalyzeBtn');
+  btn.classList.add('loading');btn.disabled=true;if(reBtn)reBtn.disabled=true;
+  updateSnap();
+  document.getElementById('aiEmpty').style.display='none';document.getElementById('aiError').style.display='none';document.getElementById('aiResponse').style.display='none';document.getElementById('aiFooter').style.display='none';document.getElementById('aiLoading').style.display='flex';
+  log('AI analysis running...','ai');
+  setTimeout(()=>{try{const r=analyzeLocalData(liveData);renderAIResponse(r);log('AI analysis complete \u2014 risk: '+r.risk_level,'ai');}catch(err){document.getElementById('aiLoading').style.display='none';const e=document.getElementById('aiError');e.style.display='block';e.textContent='\u26a0 Analysis error: '+err.message;}finally{aiAnalyzing=false;btn.classList.remove('loading');btn.disabled=false;if(reBtn)reBtn.disabled=false;}},1100);
+}
+
+function analyzeLocalData(d){
+  const suggestions=[];let riskScore=0;
+  const co=d.mq7Raw,smoke=d.mq2Raw,skin=d.skinTemp,amb=d.bmpTemp;
+  if(co!=null&&co>0){if(co>3000){riskScore+=40;suggestions.push({priority:'urgent',icon:'\u2620\ufe0f',text:'Carbon monoxide at lethal threshold \u2014 immediate full evacuation required'});}else if(co>2000){riskScore+=28;suggestions.push({priority:'urgent',icon:'\ud83d\udea8',text:'Severe CO exposure risk \u2014 all personnel must withdraw to clean air'});}else if(co>1200){riskScore+=15;suggestions.push({priority:'warn',icon:'\u26a0\ufe0f',text:'CO concentration rising \u2014 prepare for withdrawal, reassess every 60 seconds'});}else suggestions.push({priority:'info',icon:'\u2705',text:'Carbon monoxide within safe limits \u2014 no immediate action required'});if(d.mq7Phase&&d.mq7Phase.includes('HEATING'))suggestions.push({priority:'info',icon:'\ud83d\udd04',text:'MQ-7 sensor in purge cycle \u2014 updated CO reading available in ~90 seconds'});}
+  if(smoke!=null){if(smoke>3500){riskScore+=35;suggestions.push({priority:'urgent',icon:'\ud83d\udd25',text:'Critical smoke density \u2014 zero visibility conditions, evacuate sector immediately'});}else if(smoke>2500){riskScore+=22;suggestions.push({priority:'urgent',icon:'\ud83d\udca8',text:'Heavy smoke concentration \u2014 deploy SCBA and restrict civilian access zone'});}else if(smoke>2000){riskScore+=12;suggestions.push({priority:'warn',icon:'\ud83c\udf2b\ufe0f',text:'Combustible gas elevated \u2014 identify ignition source and ventilate area'});}else if(smoke>1000){riskScore+=5;suggestions.push({priority:'info',icon:'\ud83d\udc41\ufe0f',text:'Trace particulates detected \u2014 monitor trend and maintain perimeter awareness'});}}
+  if(skin!=null){if(skin>40){riskScore+=25;suggestions.push({priority:'urgent',icon:'\ud83c\udf21\ufe0f',text:'Heat stress confirmed \u2014 rotate this unit out and initiate cooling protocol now'});}else if(skin>38.5){riskScore+=12;suggestions.push({priority:'warn',icon:'\ud83d\udd06',text:'Core temperature elevated \u2014 schedule personnel rotation within 5 minutes'});}else if(skin<35){riskScore+=10;suggestions.push({priority:'warn',icon:'\u2744\ufe0f',text:'Skin temperature below normal \u2014 assess for early hypothermia and provide warming'});}else suggestions.push({priority:'info',icon:'\ud83d\udc9a',text:'Personnel vitals are stable and within operational safety parameters'});}
+  if(amb!=null){if(amb>120){riskScore+=30;suggestions.push({priority:'urgent',icon:'\u2668\ufe0f',text:'Extreme ambient heat \u2014 structural collapse risk is imminent, withdraw all units'});}else if(amb>80){riskScore+=18;suggestions.push({priority:'urgent',icon:'\ud83d\udd25',text:'Ambient temperature critical \u2014 flashover conditions are probable, reduce entry depth'});}else if(amb>50){riskScore+=8;suggestions.push({priority:'warn',icon:'\ud83c\udf21\ufe0f',text:'Above-normal ambient temperature \u2014 enforce strict time-on-scene limits for crew welfare'});}}
+  if(d.pressure!=null){if(d.pressure<975){riskScore+=5;suggestions.push({priority:'warn',icon:'\ud83d\udcc9',text:'Low atmospheric pressure \u2014 adverse weather may affect smoke dispersion and drone ops'});}else if(d.pressure>1045)suggestions.push({priority:'info',icon:'\ud83d\udcc8',text:'High pressure system recorded \u2014 log for post-incident environmental report'});}
+  if(d.irValue!=null&&d.irValue<1000)suggestions.push({priority:'warn',icon:'\ud83d\udce1',text:'IR sensor contact lost \u2014 confirm wearable unit is correctly fitted to personnel'});
+  const coH=co!=null&&co>1200,smokeH=smoke!=null&&smoke>2000,heatH=amb!=null&&amb>50;
+  if(coH&&smokeH){riskScore+=10;suggestions.unshift({priority:'urgent',icon:'\u26d4',text:'Compound toxic hazard \u2014 CO and smoke overlap confirmed, full SCBA mandatory for all entry teams'});}
+  if(smokeH&&heatH){riskScore=Math.min(100,riskScore+8);suggestions.unshift({priority:'urgent',icon:'\ud83d\udca5',text:'High smoke and heat combination \u2014 flashover probability is significantly elevated'});}
+  const risk_level=riskScore>=40?'HIGH':riskScore>=15?'MEDIUM':'LOW';
+  const summary=buildSummary(risk_level,d,co,smoke,amb,skin);
+  const order={urgent:0,warn:1,info:2};suggestions.sort((a,b)=>order[a.priority]-order[b.priority]);
+  return{risk_level,summary,suggestions:suggestions.slice(0,5),predictions:predictDangers()};
+}
+
+function calcSlope(arr,n=8){const pts=arr.slice(-n).filter(v=>v!=null);if(pts.length<3)return null;const len=pts.length,mX=(len-1)/2,mY=pts.reduce((a,b)=>a+b,0)/len;let num=0,den=0;pts.forEach((y,x)=>{num+=(x-mX)*(y-mY);den+=(x-mX)**2;});return den===0?0:num/den;}
+function rateLabel(slope,unit){if(slope==null)return null;const abs=Math.abs(slope);const dir=slope>0?'\u25b2':'\u25bc';const speed=abs>50?'rapidly':abs>15?'steadily':abs>3?'slowly':null;if(!speed)return null;return`${dir} ${speed} ${slope>0?'rising':'falling'} (~${abs.toFixed(1)} ${unit}/reading)`;}
+
+function predictDangers(){
+  const threats=[];
+  const coS=calcSlope(hist.mq7,8),smokeS=calcSlope(hist.mq2,8),skinS=calcSlope(hist.temp,8);
+  const co=liveData.mq7Raw,smoke=liveData.mq2Raw,skin=liveData.skinTemp,amb=liveData.bmpTemp;
+  if(co!=null&&co>0){const r=coS!=null&&coS>10;if(r&&co>1200)threats.push({name:'CO POISONING',icon:'\u2620\ufe0f',confidence:co>2500?'HIGH':'MEDIUM',desc:'Carbon monoxide is actively accumulating in this zone. Prolonged exposure risks neurological damage and incapacitation \u2014 the firefighter may not recognise their own impairment.',trend:rateLabel(coS,'ADC'),pct:Math.min(100,co/3000*100)});else if(r&&co>600)threats.push({name:'CO POISONING',icon:'\u2620\ufe0f',confidence:'LOW',desc:'CO levels are trending upward from a low baseline. No immediate risk, but trajectory suggests exposure could become hazardous if the source intensifies.',trend:rateLabel(coS,'ADC'),pct:Math.min(100,co/3000*100)});}
+  if(smoke!=null){const r=smokeS!=null&&smokeS>15;if(r&&smoke>2000)threats.push({name:'SMOKE INHALATION',icon:'\ud83d\udca8',confidence:smoke>3000?'HIGH':'MEDIUM',desc:'Dense smoke is building rapidly. Toxic particulates and reduced oxygen will impair the airway and cognitive function. SCBA integrity must be confirmed immediately.',trend:rateLabel(smokeS,'ADC'),pct:Math.min(100,smoke/4000*100)});else if(r&&smoke>1000)threats.push({name:'SMOKE INHALATION',icon:'\ud83d\udca8',confidence:'LOW',desc:'Particulate levels are climbing from a moderate baseline. Risk of inhalation injury increases if the trend continues without intervention or egress.',trend:rateLabel(smokeS,'ADC'),pct:Math.min(100,smoke/4000*100)});}
+  if(skin!=null){const r=skinS!=null&&skinS>0.05;if(r&&skin>38)threats.push({name:'HEAT STROKE',icon:'\ud83c\udf21\ufe0f',confidence:skin>39.5?'HIGH':'MEDIUM',desc:'Core body temperature is climbing under sustained thermal load. Heat stroke onset causes disorientation and sudden collapse \u2014 immediate personnel rotation is critical.',trend:rateLabel(skinS,'\u00b0C'),pct:Math.min(100,(skin-36)/6*100)});else if(r&&skin>37)threats.push({name:'HEAT STROKE',icon:'\ud83c\udf21\ufe0f',confidence:'LOW',desc:'Body temperature is trending above normal. Current levels are manageable, but continued physical exertion in this environment may accelerate heat accumulation.',trend:rateLabel(skinS,'\u00b0C'),pct:Math.min(100,(skin-36)/6*100)});}
+  if(amb!=null&&smoke!=null){if(amb>60&&smoke>2000)threats.push({name:'FLASHOVER',icon:'\ud83d\udca5',confidence:amb>100?'HIGH':'MEDIUM',desc:'Combined high ambient temperature and smoke density match pre-flashover signatures. All surfaces may simultaneously ignite \u2014 this gives personnel seconds to escape.',trend:`Ambient ${amb}\u00b0C + Smoke ADC ${smoke}`,pct:Math.min(100,(amb/150)*100)});else if(amb>60&&co!=null&&co>1000)threats.push({name:'FLASHOVER',icon:'\ud83d\udca5',confidence:'LOW',desc:'Elevated ambient temperature alongside CO buildup indicates incomplete combustion and hot gas layering \u2014 a precursor to potential flashover if ventilation changes.',trend:`Ambient ${amb}\u00b0C + CO ADC ${co}`,pct:Math.min(100,(amb/150)*100)});}
+  if(co!=null&&smoke!=null&&co>1500&&smoke>2500)threats.push({name:'RESPIRATORY FAILURE',icon:'\ud83e\udeb4',confidence:'HIGH',desc:'Simultaneous CO poisoning and heavy smoke inhalation creates a compound respiratory threat. The airway is under attack from both toxic gas and particulate obstruction \u2014 evacuation is non-negotiable.',trend:`CO ADC ${co} + Smoke ADC ${smoke}`,pct:95});
+  if(skin!=null&&skin<36&&skinS!=null&&skinS<-0.05)threats.push({name:'HYPOTHERMIA',icon:'\u2744\ufe0f',confidence:skin<35?'HIGH':'LOW',desc:'Skin temperature is falling progressively. Extended cold exposure may be causing thermoregulation failure \u2014 withdraw personnel and apply warming protocols.',trend:rateLabel(skinS,'\u00b0C'),pct:Math.min(100,(36-skin)/4*100)});
+  const rc=[coS,smokeS,skinS].filter(s=>s!=null&&s>5).length;
+  if(rc>=2)threats.push({name:'FIRE ESCALATION',icon:'\ud83d\udd25',confidence:rc===3?'HIGH':'MEDIUM',desc:'Multiple sensor streams are rising concurrently \u2014 CO, smoke, and thermal readings all indicate the fire is growing in intensity and spread. Reassess the tactical plan immediately.',trend:`${rc} of 3 primary sensors trending upward`,pct:rc===3?90:60});
+  const cO={HIGH:0,MEDIUM:1,LOW:2};threats.sort((a,b)=>cO[a.confidence]-cO[b.confidence]);
+  return threats.slice(0,4);
+}
+
+function buildSummary(risk,d,co,smoke,amb,skin){
+  const coStr=co!=null&&co>0?`carbon monoxide at ADC ${co}`:'carbon monoxide not yet sampled';
+  const smokeStr=smoke!=null?`smoke sensor at ADC ${smoke}`:'smoke sensor unavailable';
+  const ambStr=amb!=null?`ambient environment at ${amb}\u00b0C`:'ambient temperature unknown';
+  const skinStr=skin!=null?`personnel skin temperature at ${skin}\u00b0C`:'personnel vitals unavailable';
+  if(risk==='HIGH')return`Incident Command is advised of critical sensor readings: ${coStr}, ${smokeStr}, and ${ambStr}. Conditions present an immediate threat to personnel safety \u2014 initiate withdrawal or evacuation procedures without delay. ${skinStr} requires urgent monitoring for heat stress progression.`;
+  if(risk==='MEDIUM')return`Sensor telemetry indicates elevated hazard conditions: ${coStr}, ${smokeStr}, and ${ambStr}. The situation is currently manageable but trending adversely \u2014 command should increase monitoring frequency and prepare contingency protocols. ${skinStr} should be reviewed at next check-in.`;
+  return`All sensor readings are within acceptable operational limits: ${coStr}, ${smokeStr}, and ${ambStr}. ${skinStr} confirms personnel are operating safely. Maintain current protocols and continue routine monitoring.`;
+}
+
+function renderAIResponse(parsed){
+  document.getElementById('aiLoading').style.display='none';
+  const rC={LOW:'risk-low',MEDIUM:'risk-medium',HIGH:'risk-high'}[parsed.risk_level]||'risk-low';
+  const rE={LOW:'\ud83d\udfe2',MEDIUM:'\ud83d\udfe1',HIGH:'\ud83d\udd34'}[parsed.risk_level]||'\ud83d\udfe2';
+  const bullets=(parsed.suggestions||[]).map((s,i)=>`<div class="ai-bullet priority-${s.priority}" style="animation-delay:${i*60}ms"><span class="ai-bullet-icon">${s.icon||'\u2022'}</span><span>${s.text}</span></div>`).join('');
+  const preds=parsed.predictions||[];
+  const predHTML=preds.length===0?'<div class="no-threats">\u2713 No developing threat patterns detected at this time</div>':preds.map((p,i)=>`<div class="danger-card conf-${p.confidence.toLowerCase()}" style="animation-delay:${i*80}ms"><div class="danger-card-top"><span class="danger-icon">${p.icon}</span><span class="danger-name">${p.name}</span><span class="danger-conf-pill">${p.confidence}</span></div><div class="conf-bar"><div class="conf-bar-fill" style="width:${p.pct||60}%"></div></div><div class="danger-desc">${p.desc}</div>${p.trend?`<div class="danger-trend ${p.trend.includes('\u25b2')?'trend-up':p.trend.includes('\u25bc')?'trend-down':'trend-flat'}">${p.trend}</div>`:''}</div>`).join('');
+  document.getElementById('aiResponse').innerHTML=`
+    <div class="ai-section"><div class="ai-section-label">Risk Assessment</div><div class="ai-risk-chip ${rC}"><span class="risk-dot"></span>${rE} ${parsed.risk_level} RISK LEVEL</div></div>
+    <div class="ai-section"><div class="ai-section-label">Situational Summary</div><div class="ai-summary">${parsed.summary}</div></div>
+    <div class="ai-section"><div class="ai-section-label">Predicted Threat Types</div>${predHTML}</div>
+    <div class="ai-section"><div class="ai-section-label">Recommended Actions</div><div class="ai-bullets">${bullets}</div></div>`;
+  document.getElementById('aiResponse').style.display='block';
+  document.getElementById('aiFooter').style.display='flex';
+  document.getElementById('aiTimestamp').textContent=`ANALYZED AT ${new Date().toTimeString().slice(0,8)}`;
+}
+
+initSparks();initCharts();
+log('FireWatch Pro initialized','safe');
+log('Connect to server or click DEMO to test','info');
+setTimeout(()=>document.getElementById('connPanel').style.display='block',800);
 </script>
-
 </body>
 </html>
