@@ -1,64 +1,103 @@
 const express = require('express');
-const http    = require('http');
+const http = require('http');
 const WebSocket = require('ws');
-const path    = require('path');
+const cors = require('cors');
 
-const app    = express();
-const server = http.createServer(app);
-const wss    = new WebSocket.Server({ server });
-
+const app = express();
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Latest sensor snapshot — browsers that connect late get it immediately
+// ✅ Create HTTP server
+const server = http.createServer(app);
+
+// ✅ FIX: WebSocket with manual upgrade (REQUIRED for Render)
+const wss = new WebSocket.Server({ noServer: true });
+
+// 🔥 Store latest data
 let latestData = null;
 let lastReceivedAt = null;
 
-// ESP32 posts JSON to this endpoint every ~2 seconds
-app.post('/data', (req, res) => {
-  const payload = req.body;
-  if (!payload || typeof payload !== 'object') {
-    return res.status(400).json({ error: 'Invalid JSON' });
+// ============================
+// 🔥 HANDLE WEBSOCKET UPGRADE
+// ============================
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
+  });
+});
+
+// ============================
+// 🔥 WEBSOCKET CONNECTION
+// ============================
+wss.on('connection', (ws) => {
+  console.log("🟢 Browser connected");
+
+  // send last data immediately
+  if (latestData) {
+    ws.send(JSON.stringify(latestData));
   }
 
-  payload._ts = Date.now(); // attach server timestamp
-  latestData = payload;
+  ws.on('close', () => {
+    console.log("🔴 Browser disconnected");
+  });
+});
+
+// ============================
+// 🔥 ESP ENDPOINT
+// ============================
+app.post('/data', (req, res) => {
+  const data = req.body;
+
+  if (!data || typeof data !== 'object') {
+    console.log("❌ Invalid JSON received");
+    return res.status(400).json({ error: "Invalid JSON" });
+  }
+
+  // attach timestamp
+  data._ts = Date.now();
+
+  latestData = data;
   lastReceivedAt = Date.now();
 
-  // Broadcast to all connected dashboard browsers
-  const msg = JSON.stringify(payload);
+  console.log("📡 ESP DATA RECEIVED:", data);
+
+  // 🔥 BROADCAST TO ALL CLIENTS
+  const message = JSON.stringify(data);
+
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(msg);
+      client.send(message);
     }
   });
 
   res.json({ ok: true, clients: wss.clients.size });
 });
 
-// Health check — Render pings this to keep the service alive
+// ============================
+// 🔥 HEALTH CHECK
+// ============================
 app.get('/health', (req, res) => {
   res.json({
-    status: 'ok',
+    status: "ok",
     clients: wss.clients.size,
     lastReceived: lastReceivedAt
       ? `${Math.round((Date.now() - lastReceivedAt) / 1000)}s ago`
-      : 'never'
+      : "never"
   });
 });
 
-// On new browser connection, immediately send last known data
-wss.on('connection', (ws) => {
-  console.log(`Browser connected. Total clients: ${wss.clients.size}`);
-  if (latestData) {
-    ws.send(JSON.stringify(latestData));
-  }
-  ws.on('close', () => {
-    console.log(`Browser disconnected. Total clients: ${wss.clients.size}`);
-  });
+// ============================
+// 🔥 ROOT
+// ============================
+app.get('/', (req, res) => {
+  res.send("🔥 FireWatch Server Running");
 });
 
+// ============================
+// 🔥 START SERVER
+// ============================
 const PORT = process.env.PORT || 3000;
+
 server.listen(PORT, () => {
-  console.log(`FireWatch server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
